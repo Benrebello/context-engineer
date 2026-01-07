@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Context Engineer specific
+.cache/
+*.log
+
+# Generated files
+prd/
+prps/
+tasks/
+output/
+*.generated.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+./context_engineer.egg-info
+.mypy_cache/
+.ruff_cache/
+.pyre/
