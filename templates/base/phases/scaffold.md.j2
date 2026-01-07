@@ -1,0 +1,85 @@
+# F1 - Arquitetura & Scaffolding
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+Padrão Arquitetural: {{ architecture_pattern }}
+
+## Objetivo
+Definir arquitetura e estrutura inicial do projeto seguindo {{ architecture_pattern }}.
+
+## Estrutura Obrigatória
+
+{% if architecture_pattern == "clean-architecture" %}
+```
+src/
+├── domain/ # Entidades, value objects, regras de negócio
+├── application/ # Casos de uso, serviços de aplicação
+├── infrastructure/ # Repositórios, APIs externas, banco de dados
+└── interfaces/ # Controllers, DTOs, adaptadores
+```
+{% elif architecture_pattern == "hexagonal" %}
+```
+src/
+├── domain/ # Lógica de negócio
+├── application/ # Casos de uso
+└── adapters/ # Adaptadores de entrada e saída
+```
+{% endif %}
+
+## Comandos Executáveis
+
+{% if stack_commands %}
+```bash
+# Inicializar projeto
+{{ stack_commands.init }}
+
+# Instalar dependências
+{{ stack_commands.install }}
+
+# Criar estrutura de diretórios
+{% if stack_structure %}
+mkdir -p {{ stack_structure.domain }}
+mkdir -p {{ stack_structure.application }}
+mkdir -p {{ stack_structure.infrastructure }}
+mkdir -p {{ stack_structure.interfaces }}
+{% if stack_structure.tests_unit %}
+mkdir -p {{ stack_structure.tests_unit }}
+{% endif %}
+{% if stack_structure.tests_integration %}
+mkdir -p {{ stack_structure.tests_integration }}
+{% endif %}
+{% endif %}
+
+# Iniciar ambiente de desenvolvimento
+{{ stack_commands.dev }}
+
+# Executar testes
+{{ stack_commands.test }}
+
+# Verificar qualidade de código
+{{ stack_commands.lint }}
+{{ stack_commands.format }}
+{% if stack_commands.type_check %}
+{{ stack_commands.type_check }}
+{% endif %}
+```
+{% else %}
+ **Atenção**: Stack commands não disponíveis. Configure o plugin de stack corretamente.
+
+```bash
+# Configure stack_commands no arquivo stacks/{{ stack }}.yaml
+# Exemplo de estrutura esperada:
+# commands:
+# init: "comando de inicialização"
+# install: "comando de instalação"
+# dev: "comando de desenvolvimento"
+# test: "comando de testes"
+```
+{% endif %}
+
+## Validação
+- [ ] Estrutura de pastas criada
+- [ ] Dependências instaladas
+- [ ] Arquitetura documentada
+

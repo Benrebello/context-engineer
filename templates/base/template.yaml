@@ -1,0 +1,47 @@
+name: "base-context-engineer"
+version: "1.0.0"
+description: "Template base do Context Engineer"
+
+variables:
+  project_name:
+    type: "string"
+    required: true
+    description: "Nome do projeto"
+  
+  project_type:
+    type: "enum"
+    default: "web-app"
+    options: ["web-app", "api", "mobile", "desktop"]
+    description: "Tipo de projeto"
+  
+  stack:
+    type: "enum"
+    default: "python-fastapi"
+    options: ["python-fastapi", "node-react", "vue3", "java-spring", "go-gin"]
+    description: "Stack tecnológica"
+  
+  prioritization_method:
+    type: "enum"
+    default: "MoSCoW"
+    options: ["MoSCoW", "RICE", "Value-Effort"]
+    description: "Método de priorização"
+
+phases:
+  - id: "F0"
+    template: "phases/plan.md.j2"
+    required: true
+    variables:
+      use_epics:
+        default: true
+        type: "boolean"
+  
+  - id: "F1"
+    template: "phases/scaffold.md.j2"
+    required: true
+    depends_on: ["F0"]
+    variables:
+      architecture_pattern:
+        default: "clean-architecture"
+        type: "enum"
+        options: ["clean-architecture", "hexagonal", "layered"]
+

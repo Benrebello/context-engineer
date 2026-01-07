@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "context-engineer"
+version = "1.0.0"
+description = "Um framework agnóstico para engenharia de contexto e governança de IA em IDEs como Windsurf e Cursor."
+readme = "README.md"
+authors = [{name = "Benjamin Rebello", email = "benjamin.rebello@outlook.com"}]
+license = "MIT"
+requires-python = ">=3.11"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Build Tools"
+]
+dependencies = [
+    "click>=8.1.0",
+    "jinja2>=3.1.2",
+    "pyyaml>=6.0.1",
+    "pydantic>=2.0.0",
+    "numpy>=1.24.0",
+    "jsonschema>=4.0.0",
+]
+
+[project.optional-dependencies]
+ai = [
+    "sentence-transformers>=2.2.2",
+    "torch>=2.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "black>=23.0.0",
+]
+
+[project.scripts]
+ce = "cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "cli*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.j2", "*.yaml", "*.json"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+warn_no_return = true
+strict_equality = true
+show_error_codes = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = ["core.cache", "core.validators", "core.types", "core.engine"]
+disallow_untyped_defs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["cli.commands.*"]
+disallow_untyped_defs = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "PIE", "PT", "RET", "SIM", "TID", "ARG", "PLE", "PLR", "PLW"]
+ignore = ["E501", "PLR0913", "PLR2004"]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["ARG", "PLR2004"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=core --cov=cli --cov-report=term-missing --cov-report=html"

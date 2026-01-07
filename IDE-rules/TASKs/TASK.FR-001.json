@@ -1,0 +1,42 @@
+{
+  "task_id": "FR-001",
+  "objective": "{{objective}}",
+  "inputs": [
+    "PRPs/01_scaffold.md",
+    "PRPs/02_data_model.md",
+    "PRPs/03_api_contracts.md"
+  ],
+  "artifacts": [
+    {
+      "path": "src/{{module}}.py",
+      "type": "file",
+      "content": "{{content_hint}}"
+    }
+  ],
+  "commands": [
+    "pytest -q",
+    "contract-tests run"
+  ],
+  "acceptance_criteria": [
+    "{{acceptance_1}}",
+    "{{acceptance_2}}"
+  ],
+  "validation": [
+    {
+      "tool": "tests",
+      "command": "pytest -q",
+      "expected": "0 failures"
+    },
+    {
+      "tool": "contract",
+      "command": "contract-tests run",
+      "expected": "0 failures"
+    }
+  ],
+  "risks": [
+    {
+      "risk": "{{risk}}",
+      "mitigation": "{{mitigation}}"
+    }
+  ]
+}

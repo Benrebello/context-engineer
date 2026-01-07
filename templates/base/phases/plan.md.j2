@@ -1,0 +1,64 @@
+# F0 - Alinhamento & Plano
+
+## Contexto
+Projeto: {{ project_name }}
+Tipo: {{ project_type }}
+Stack: {{ stack }}
+
+## Objetivo
+Derivar WBS (Work Breakdown Structure) do PRD usando método {{ prioritization_method }}.
+
+{% if use_epics %}
+## Estrutura de Backlog
+- Épicos → Features → Tasks
+{% else %}
+## Estrutura de Backlog
+- Features → Tasks
+{% endif %}
+
+## Priorização
+Método: {{ prioritization_method }}
+
+{% if prioritization_method == "MoSCoW" %}
+Prioridades: MUST, SHOULD, COULD, WON'T
+{% elif prioritization_method == "RICE" %}
+Priorização por: Reach × Impact × Confidence / Effort
+{% endif %}
+
+## Artefatos Obrigatórios
+
+### Backlog
+```json
+{
+ "backlog": [
+ {
+ "epic": "string",
+ "features": ["string"],
+ "priority": "MUST|SHOULD|COULD",
+ "effort_points": "number",
+ "dependencies": ["string"]
+ }
+ ]
+}
+```
+
+### Riscos
+```json
+{
+ "risks": [
+ {
+ "risk": "string",
+ "probability": "HIGH|MEDIUM|LOW",
+ "impact": "HIGH|MEDIUM|LOW",
+ "mitigation": "string",
+ "gate": "string"
+ }
+ ]
+}
+```
+
+## Validação
+- [ ] Todos os épicos priorizados
+- [ ] Dependências mapeadas
+- [ ] Riscos identificados com mitigações
+

@@ -1,0 +1,55 @@
+# {{ project_name }}
+
+## Description
+
+Project generated with Context Engineer using stack **{{ stack }}**.
+
+{% if stack_description %}{{ stack_description }}{% else %}This scaffold follows Context Engineer guidelines for high-velocity delivery.{% endif %}
+
+## Project Structure
+
+{% if stack_structure %}
+```
+{% for name, path in stack_structure.items() -%}
+{{ path }}/
+{%- endfor %}
+```
+{% else %}
+Project structure will follow Clean Architecture guidelines during implementation.
+{% endif %}
+
+## Setup
+
+{% if init_command %}
+```bash
+{{ init_command }}
+```
+{% endif %}
+{% if install_command %}
+```bash
+{{ install_command }}
+```
+{% endif %}
+
+## Development
+
+This project was bootstrapped with Context Engineer. Key references:
+
+- PRPs: review the generated `PRPs/` artifacts for architectural intent.
+- Tasks: execute `ce generate-tasks` to produce implementation backlog.
+- Validation: run `ce validate` to ensure traceability and contract integrity.
+
+## Useful Commands
+
+{% if stack_commands %}
+{% for label, command in stack_commands.items() if command %}- **{{ label|capitalize }}**: `{{ command }}`
+{% endfor %}
+{% else %}
+Configure dev/test/lint scripts after choosing your preferred toolchain.
+{% endif %}
+
+## Context Engineer
+
+This project uses the Context Engineer framework for AI-assisted delivery.
+
+Documentation: https://github.com/clicksign/context-engineer

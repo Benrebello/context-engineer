@@ -1,0 +1,209 @@
+# F2 - Modelo de Dados & Esquemas
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Definir entidades de domínio, relacionamentos e esquemas de dados seguindo Domain-Driven Design (DDD) e garantindo normalização adequada.
+
+## Regras de Negócio
+
+### Domain-Driven Design
+- **Entidades do domínio primeiro**: Identificar entidades core do negócio
+- **Value Objects**: Usar para conceitos sem identidade própria
+- **Agregados**: Agrupar entidades relacionadas
+- **Repositórios**: Interfaces na camada de domínio, implementação na infra
+
+### Normalização
+- Mínimo **3NF** (Terceira Forma Normal)
+- Constraints de integridade obrigatórias
+- Índices para campos de busca frequente
+
+### Auditoria Automática
+- `created_at`: Timestamp de criação
+- `updated_at`: Timestamp de atualização
+- `version`: Controle de versão otimista (opcional)
+- `is_active`: Soft delete (opcional)
+
+### LGPD Compliance
+- Identificar campos **PII** (Personally Identifiable Information)
+- Documentar finalidade de cada campo
+- Definir retenção de dados
+- Implementar direito ao esquecimento
+
+---
+
+## Estrutura de Entidades
+
+{% if stack == "python-fastapi" %}
+### Exemplo: Entidade Base (SQLModel)
+
+```python
+# src/domain/entities/base.py
+from sqlmodel import SQLModel, Field
+from datetime import datetime
+from typing import Optional
+import uuid
+
+class BaseEntity(SQLModel):
+ """Base entity with common fields"""
+ id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+ created_at: datetime = Field(default_factory=datetime.utcnow)
+ updated_at: datetime = Field(default_factory=datetime.utcnow)
+ is_active: bool = Field(default=True)
+ 
+ # LGPD: Campos PII devem ser marcados
+ _pii_fields: list[str] = []
+```
+
+### Exemplo: Entidade de Domínio
+
+```python
+# src/domain/entities/user.py
+from sqlmodel import SQLModel, Field
+from pydantic import EmailStr
+from .base import BaseEntity
+
+class User(BaseEntity, table=True):
+ """User entity"""
+ email: EmailStr = Field(unique=True, index=True)
+ full_name: str
+ password_hash: str = Field(exclude=True) # Nunca expor
+ phone: Optional[str] = None
+ 
+ # LGPD: Campos PII
+ _pii_fields = ["email", "full_name", "phone"]
+```
+
+### Migrações (Alembic)
+
+```bash
+# Criar migração
+alembic revision --autogenerate -m "Create user table"
+
+# Aplicar migração
+alembic upgrade head
+
+# Validar esquema
+alembic check
+```
+
+{% elif stack == "node-react" %}
+### Exemplo: Schema Prisma
+
+```prisma
+// prisma/schema.prisma
+model User {
+ id String @id @default(uuid())
+ email String @unique
+ fullName String @map("full_name")
+ passwordHash String @map("password_hash")
+ phone String?
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+ isActive Boolean @default(true) @map("is_active")
+ 
+ @@map("users")
+ @@index([email])
+}
+```
+
+### Migrações
+
+```bash
+# Criar migração
+npx prisma migrate dev --name create_user_table
+
+# Validar esquema
+npx prisma validate
+```
+
+{% endif %}
+
+---
+
+## Validações Obrigatórias
+
+### Constraints de Integridade
+- Unicidade de campos únicos
+- Foreign keys válidas
+- Check constraints quando aplicável
+
+### Testes de Esquema
+{% if stack == "python-fastapi" %}
+```bash
+# Validar migrações
+alembic check
+
+# Testes de modelo
+pytest tests/models/ -v
+
+# Validar constraints
+pytest tests/integration/test_constraints.py -v
+```
+{% elif stack == "node-react" %}
+```bash
+# Validar schema
+npx prisma validate
+
+# Testes de modelo
+npm run test:models
+
+# Validar constraints
+npm run test:constraints
+```
+{% endif %}
+
+---
+
+## Seed Data (Opcional)
+
+{% if stack == "python-fastapi" %}
+```python
+# scripts/seed.py
+from src.domain.entities.user import User
+from src.infrastructure.database import get_session
+
+def seed_users():
+ session = get_session()
+ # Seed data aqui
+ session.commit()
+```
+{% elif stack == "node-react" %}
+```typescript
+// prisma/seed.ts
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+async function seed() {
+ // Seed data aqui
+}
+
+seed()
+```
+{% endif %}
+
+---
+
+## Checklist de Validação
+
+- [ ] Entidades de domínio criadas
+- [ ] Relacionamentos mapeados corretamente
+- [ ] Constraints de integridade implementadas
+- [ ] Migrações criadas e validadas
+- [ ] Campos PII identificados e documentados
+- [ ] Testes de esquema passando
+- [ ] Auditoria automática funcionando
+- [ ] LGPD compliance documentado
+
+---
+
+## Próximos Passos
+
+Após validar o modelo de dados:
+1. Prosseguir para **F3 - Contratos de API**
+2. Usar entidades criadas nos casos de uso
+3. Implementar repositórios na camada de infraestrutura
+

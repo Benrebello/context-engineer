@@ -1,0 +1,106 @@
+{
+  "task_id": "US-XXX",
+  "user_story": {
+    "as_a": "[persona]",
+    "i_want": "[ação]",
+    "so_that": "[valor de negócio]",
+    "format": "Como um {{as_a}}, eu quero {{i_want}}, para que {{so_that}}"
+  },
+  "objective": "Implementar [objetivo específico]",
+  "priority": "MUST|SHOULD|COULD",
+  "effort_points": 0,
+  "acceptance_criteria": [
+    "[Critério 1]",
+    "[Critério 2]"
+  ],
+  "gherkin_scenarios": [
+    {
+      "scenario": "Cenário 1: [Nome]",
+      "given": "[condição inicial]",
+      "when": "[ação do usuário]",
+      "then": "[resultado esperado]"
+    }
+  ],
+  "inputs": [
+    "@GLOBAL_ENGINEERING_RULES.json",
+    "@PROJECT_STANDARDS.md",
+    "codebase existente"
+  ],
+  "steps": [
+    "Analisar UserStory e identificar entidades",
+    "Buscar código existente no codebase",
+    "Criar/Atualizar entidade de domínio",
+    "Implementar caso de uso",
+    "Criar endpoint (se aplicável)",
+    "Implementar testes BDD",
+    "Implementar testes unitários",
+    "Adicionar validações automáticas",
+    "Validar critérios de aceitação"
+  ],
+  "artifacts": [
+    {
+      "path": "src/domain/entities/[entidade].py",
+      "type": "file",
+      "description": "Entidade de domínio"
+    },
+    {
+      "path": "src/application/use_cases/[caso_de_uso].py",
+      "type": "file",
+      "description": "Caso de uso"
+    },
+    {
+      "path": "src/interfaces/api/[recurso].py",
+      "type": "file",
+      "description": "Endpoint API (se aplicável)"
+    },
+    {
+      "path": "tests/bdd/[feature].feature",
+      "type": "file",
+      "description": "Testes BDD em Gherkin"
+    },
+    {
+      "path": "tests/unit/[modulo]/test_[arquivo].py",
+      "type": "file",
+      "description": "Testes unitários"
+    }
+  ],
+  "validation": [
+    {
+      "tool": "tests",
+      "command": "pytest -q",
+      "expected": "0 failures"
+    },
+    {
+      "tool": "lint",
+      "command": "ruff check .",
+      "expected": "no errors"
+    },
+    {
+      "tool": "format",
+      "command": "black --check .",
+      "expected": "All done!"
+    },
+    {
+      "tool": "coverage",
+      "command": "pytest --cov=src --cov-report=term-missing",
+      "expected": "coverage >= 80%"
+    }
+  ],
+  "dependencies": [],
+  "risks": [
+    {
+      "risk": "[Risco identificado]",
+      "probability": "HIGH|MEDIUM|LOW",
+      "impact": "HIGH|MEDIUM|LOW",
+      "mitigation": "[Estratégia de mitigação]"
+    }
+  ],
+  "completion_criteria": [
+    "UserStory implementada completamente",
+    "Todos os critérios de aceitação atendidos",
+    "Testes BDD passando",
+    "Testes unitários com cobertura ≥ 80%",
+    "Validações automáticas OK"
+  ]
+}
+

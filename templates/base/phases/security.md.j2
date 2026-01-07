@@ -1,0 +1,272 @@
+# F8 - Segurança & Compliance
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Garantir segurança por design, compliance LGPD, proteção contra vulnerabilidades comuns (OWASP Top 10) e auditoria de segurança automatizada.
+
+## Regras de Negócio
+
+### Segurança por Design
+- **Autenticação**: JWT com refresh tokens, expiração curta (15min)
+- **Autorização**: RBAC (Role-Based Access Control)
+- **Rate Limiting**: Proteção contra DDoS e brute force
+- **HTTPS**: Obrigatório em produção (TLS 1.3+)
+
+### LGPD Compliance
+- **Consentimento explícito**: Para coleta de dados pessoais
+- **Direito ao esquecimento**: Endpoint para exclusão de dados
+- **Portabilidade**: Exportação de dados do usuário
+- **Transparência**: Política de privacidade clara
+
+### OWASP Top 10
+- **A01: Broken Access Control**: Validação de permissões em todas as rotas
+- **A02: Cryptographic Failures**: Senhas hasheadas (bcrypt/argon2), TLS obrigatório
+- **A03: Injection**: Prepared statements, validação de input
+- **A07: Identification & Authentication Failures**: MFA opcional, rate limiting
+
+---
+
+## Implementação por Stack
+
+{% if stack == "python-fastapi" %}
+### Autenticação JWT Segura
+
+```python
+# src/infrastructure/security/jwt.py
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Configuração
+SECRET_KEY = os.getenv("SECRET_KEY") # Deve ser forte e rotacionado
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15 # Curto para segurança
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+ """Create JWT access token"""
+ to_encode = data.copy()
+ if expires_delta:
+ expire = datetime.utcnow() + expires_delta
+ else:
+ expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+ to_encode.update({"exp": expire, "iat": datetime.utcnow()})
+ return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+ """Verify password against hash"""
+ return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+ """Hash password using bcrypt"""
+ return pwd_context.hash(password)
+```
+
+### Rate Limiting (slowapi)
+
+```python
+# src/infrastructure/security/rate_limit.py
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+limiter = Limiter(key_func=get_remote_address)
+
+@router.post("/api/v1/auth/login")
+@limiter.limit("5/minute") # Máximo 5 tentativas por minuto
+async def login(credentials: LoginDTO):
+ # ... lógica de login
+```
+
+### Validação de Input (Pydantic)
+
+```python
+# src/application/dtos/user_dto.py
+from pydantic import BaseModel, EmailStr, validator
+import re
+
+class UserCreateDTO(BaseModel):
+ email: EmailStr
+ password: str
+ full_name: str
+ 
+ @validator('password')
+ def validate_password(cls, v):
+ """Validate password strength"""
+ if len(v) < 8:
+ raise ValueError('Password must be at least 8 characters')
+ if not re.search(r'[A-Z]', v):
+ raise ValueError('Password must contain uppercase letter')
+ if not re.search(r'[a-z]', v):
+ raise ValueError('Password must contain lowercase letter')
+ if not re.search(r'\d', v):
+ raise ValueError('Password must contain digit')
+ return v
+```
+
+### LGPD: Direito ao Esquecimento
+
+```python
+# src/interfaces/api/users.py
+@router.delete("/api/v1/users/{user_id}")
+@require_permission("users:delete")
+async def delete_user(user_id: UUID, current_user: User = Depends(get_current_user)):
+ """Delete user data (LGPD: Direito ao Esquecimento)"""
+ # Anonimizar dados pessoais
+ user = await user_repository.get(user_id)
+ user.email = f"deleted_{user.id}@deleted.local"
+ user.full_name = "Deleted User"
+ user.phone = None
+ user.is_active = False
+ await user_repository.save(user)
+ 
+ # Log para auditoria (sem PII)
+ logger.info("user_deleted", user_id=str(user_id), deleted_by=str(current_user.id))
+ 
+ return {"message": "User data anonymized"}
+```
+
+{% elif stack == "node-react" %}
+### Autenticação JWT Segura
+
+```typescript
+// src/infrastructure/security/jwt.ts
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
+const SECRET_KEY = process.env.SECRET_KEY!;
+const ACCESS_TOKEN_EXPIRE = '15m';
+const REFRESH_TOKEN_EXPIRE = '7d';
+
+export function createAccessToken(payload: object): string {
+ return jwt.sign(payload, SECRET_KEY, { expiresIn: ACCESS_TOKEN_EXPIRE });
+}
+
+export async function hashPassword(password: string): Promise<string> {
+ return bcrypt.hash(password, 10);
+}
+
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+ return bcrypt.compare(password, hash);
+}
+```
+
+### Rate Limiting (express-rate-limit)
+
+```typescript
+// src/infrastructure/security/rateLimit.ts
+import rateLimit from 'express-rate-limit';
+
+export const loginLimiter = rateLimit({
+ windowMs: 60 * 1000, // 1 minute
+ max: 5, // 5 attempts per minute
+ message: 'Too many login attempts, please try again later',
+});
+```
+
+{% endif %}
+
+---
+
+## Auditoria de Segurança
+
+### Security Scanning
+{% if stack_commands %}
+```bash
+# Python: Bandit (security linter)
+bandit -r src/ -f json -o security-report.json
+# Esperado: no high/critical issues
+
+# Node: npm audit
+npm audit --audit-level=moderate
+# Esperado: no moderate+ vulnerabilities
+```
+{% else %}
+```bash
+# Python: Bandit
+bandit -r src/
+
+# Node: npm audit
+npm audit
+```
+{% endif %}
+
+### Dependency Scanning
+```bash
+# Verificar dependências vulneráveis
+# Python: safety check
+# Node: npm audit
+```
+
+### SAST (Static Application Security Testing)
+```bash
+# Usar ferramentas como:
+# - Semgrep (Python/JS)
+# - SonarQube
+# - Snyk Code
+```
+
+---
+
+## LGPD Compliance Checklist
+
+### Coleta de Dados
+- [ ] Consentimento explícito implementado
+- [ ] Finalidade de cada campo documentada
+- [ ] Retenção de dados definida
+
+### Direitos do Usuário
+- [ ] Endpoint de exclusão (direito ao esquecimento)
+- [ ] Endpoint de exportação (portabilidade)
+- [ ] Endpoint de consulta (transparência)
+
+### Segurança de Dados
+- [ ] Criptografia em repouso (banco de dados)
+- [ ] Criptografia em trânsito (HTTPS/TLS)
+- [ ] Logs sem PII
+
+---
+
+## Validações Obrigatórias
+
+### Security Scanning
+```bash
+# Executar security scan
+bandit -r src/ # Python
+npm audit # Node
+
+# Esperado: zero vulnerabilidades críticas/altas
+```
+
+### LGPD Compliance
+```bash
+# Verificar ausência de PII em logs
+grep -i "email\|cpf\|password" logs/*.log
+# Esperado: nenhum resultado
+```
+
+### Checklist de Validação
+
+- [ ] Autenticação JWT implementada (tokens curtos)
+- [ ] Rate limiting configurado
+- [ ] Validação de input robusta
+- [ ] HTTPS obrigatório em produção
+- [ ] Security scanning sem vulnerabilidades críticas
+- [ ] LGPD compliance implementado
+- [ ] Direito ao esquecimento funcional
+- [ ] Auditoria de segurança configurada
+
+---
+
+## Próximos Passos
+
+Após validar segurança:
+1. Prosseguir para **F9 - CI/CD & Deploy**
+2. Configurar pipeline de segurança
+3. Implementar monitoramento de segurança
+

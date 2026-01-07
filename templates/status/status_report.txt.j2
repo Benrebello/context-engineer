@@ -1,0 +1,32 @@
+======================================================================
+Status do Projeto: {{ status_view.project_name }}
+======================================================================
+
+Status de Conclusão:
+   {{ '[OK]' if status_view.completion_status.init else '[PENDENTE]' }} Inicialização
+   {{ '[OK]' if status_view.completion_status.prd else '[PENDENTE]' }} PRD
+   {{ '[OK]' if status_view.completion_status.prps else '[PENDENTE]' }} PRPs
+   {{ '[OK]' if status_view.completion_status.tasks else '[PENDENTE]' }} Tasks
+   {{ '[OK]' if status_view.completion_status.implementation else '[PENDENTE]' }} Implementação
+
+{% if status_view.has_prd %}[OK] PRD: Completo ({{ status_view.prd_filename | default('desconhecido') }})
+{% else %}[PENDENTE] PRD: Não encontrado
+{% endif %}
+{% if status_view.has_prps %}[OK] PRPs: {{ status_view.prp_completed }}/{{ status_view.prp_total }} fases completas
+{% else %}[PENDENTE] PRPs: Não encontrados
+{% endif %}
+{% if status_view.has_tasks %}[OK] Tasks: {{ status_view.task_count }} tasks encontradas
+{% else %}[PENDENTE] Tasks: Não encontradas
+{% endif %}
+
+Métricas:
+   • Story Points estimados: {{ metrics.story_points }}
+   • Taxa de retrabalho: {{ metrics.rework_rate | round(1) }}%
+   • Taxa de conclusão: {{ metrics.task_completion_rate | round(1) }}%
+   • Cobertura de testes: {{ metrics.test_coverage | round(1) }}%
+
+{% if status_view.suggestions %}Próximos Passos:
+{% for suggestion in status_view.suggestions[:3] %}   {{ loop.index }}. {{ suggestion }}
+{% endfor %}
+{% endif %}
+======================================================================

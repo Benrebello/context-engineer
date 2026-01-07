@@ -1,0 +1,21 @@
+{
+  "name": "{{ project_slug }}",
+  "version": "0.1.0",
+  "description": "Project generated with Context Engineer",
+  "type": "module",
+  "scripts": {
+  {% if scripts %}
+  {% for script in scripts %}
+    "{{ script.name }}": "{{ script.command }}"{% if not loop.last %},{% endif %}
+  {% endfor %}
+  {% endif %}
+  },
+  "dependencies": {
+  {% if dependencies %}
+  {% for dep in dependencies %}
+    "{{ dep.name }}": "{{ dep.version }}"{% if not loop.last %},{% endif %}
+  {% endfor %}
+  {% endif %}
+  },
+  "devDependencies": {}
+}

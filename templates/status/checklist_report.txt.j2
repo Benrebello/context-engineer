@@ -1,0 +1,28 @@
+======================================================================
+Checklist do Projeto
+======================================================================
+
+Progresso Geral: {{ status_view.completed_steps }}/{{ status_view.total_steps }} etapas completas
+----------------------------------------------------------------------
+
+[1/5] Projeto inicializado: {{ '[OK]' if status_view.completion_status.init else '[PENDENTE]' }}
+[2/5] PRD gerado: {{ '[OK]' if status_view.completion_status.prd else '[PENDENTE]' }}
+[3/5] PRPs gerados: {{ '[OK]' if status_view.completion_status.prps else '[PENDENTE]' }}
+[4/5] Tasks geradas: {{ '[OK]' if status_view.completion_status.tasks else '[PENDENTE]' }}
+[5/5] Primeira implementação: {{ '[OK]' if status_view.completion_status.implementation else '[PENDENTE]' }}
+
+Detalhes de PRPs:
+{% for phase_id, info in status_view.prp_phases.items() %}
+{% if loop.index <= 5 %}
+   {{ phase_id }} - {{ status_view.phase_names.get(phase_id, phase_id) }}:
+      {{ 'OK' if info.exists else 'PENDENTE' }}
+{% endif %}
+{% endfor %}
+
+Foco Atual:
+{% if status_view.suggestions %}
+   {{ status_view.suggestions[0] }}
+{% else %}
+   Nenhuma sugestão registrada.
+{% endif %}
+======================================================================

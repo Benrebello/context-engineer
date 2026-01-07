@@ -1,0 +1,52 @@
+name: Context Engineer CI Bootstrap
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  ci-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Context Engineer
+        run: |
+          python -m pip install --upgrade pip
+          pip install . "context-engineer[ai]"
+
+      - name: Generate commits.json for inverse traceability
+        run: ce generate-commit-map --project-dir . --output commits.json
+
+      - name: Validate PRPs e Tasks
+        run: |
+          if [ -d "PRPs" ]; then
+            ce validate PRPs --soft-check --commits-json commits.json
+          else
+            echo "PRPs directory not found, skipping validation."
+          fi
+
+      - name: Capture AI governance snapshot (JSON)
+        run: ce ai-governance status --project-dir . --format json > ai_governance_status.json
+
+      - name: Upload AI governance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-governance-status
+          path: ai_governance_status.json
+
+      - name: Comment AI governance status on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SUMMARY=$(jq '{project: .project_dir, policy_version: .meta.policy_version, resolved: .resolved}' ai_governance_status.json)
+          TRUNCATED=$(echo "${SUMMARY}" | head -c 6000)
+          gh pr comment ${{ github.event.pull_request.number }} --body "### AI Governance Status\n\`\`\`json\n${TRUNCATED}\n\`\`\`"

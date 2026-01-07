@@ -1,0 +1,40 @@
+{
+  "phase": "{{phase_code}}",
+  "objectives": [
+    "{{objective}}"
+  ],
+  "inputs": [
+    "{{inputs}}"
+  ],
+  "artifacts": [
+    {
+      "path": "{{artifact_path}}",
+      "type": "file|patch|command|schema",
+      "content": "{{content_hint}}"
+    }
+  ],
+  "commands": [
+    "{{command_1}}",
+    "{{command_2}}"
+  ],
+  "acceptance_criteria": [
+    "{{acceptance_1}}",
+    "{{acceptance_2}}"
+  ],
+  "validation": [
+    {
+      "tool": "lint|tests|contract",
+      "command": "{{validation_cmd}}",
+      "expected": "{{expected}}"
+    }
+  ],
+  "risks": [
+    {
+      "risk": "{{risk}}",
+      "mitigation": "{{mitigation}}"
+    }
+  ],
+  "questions": [
+    "{{question_1}}"
+  ]
+}

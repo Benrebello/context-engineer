@@ -1,0 +1,42 @@
+name: "go-gin"
+version: "1.0.0"
+description: "Go 1.21+ with Gin, GORM, and modern tooling"
+
+commands:
+  init: "go mod init github.com/user/project"
+  install: "go mod download"
+  dev: "go run cmd/server/main.go"
+  test: "go test ./..."
+  lint: "golangci-lint run"
+  format: "gofmt -w ."
+  type_check: "go vet ./..."
+  build: "go build -o bin/server cmd/server/main.go"
+
+structure:
+  domain: "internal/domain"
+  application: "internal/application"
+  infrastructure: "internal/infrastructure"
+  interfaces: "internal/interfaces"
+  handlers: "internal/handlers"
+  models: "internal/models"
+  repositories: "internal/repositories"
+  services: "internal/services"
+  utils: "internal/utils"
+  cmd: "cmd"
+  tests_unit: "tests/unit"
+  tests_integration: "tests/integration"
+
+patterns:
+  - "patterns/authentication/jwt-fastapi.md"
+  - "patterns/api-patterns/restful-crud.md"
+  - "patterns/data-models/user-entity.md"
+
+dependencies:
+  - "github.com/gin-gonic/gin>=1.9.0"
+  - "gorm.io/gorm>=1.25.0"
+  - "gorm.io/driver/postgres>=1.5.0"
+  - "github.com/golang-jwt/jwt/v5>=5.0.0"
+  - "golang.org/x/crypto>=0.17.0"
+  - "github.com/joho/godotenv>=1.5.0"
+  - "github.com/swaggo/swag>=1.16.0"
+  - "github.com/swaggo/gin-swagger>=1.6.0"

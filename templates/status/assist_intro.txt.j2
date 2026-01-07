@@ -1,0 +1,36 @@
+======================================================================
+Context Engineer Assistant
+======================================================================
+
+Olá! Vou guiá-lo pelo processo completo.
+
+[Contexto Atual]
+  • Stack: {{ assistant_context.stack or 'indefinida' }}
+  • Tasks geradas: {{ assistant_context.task_count or 0 }}
+  • Próxima fase sugerida: {{ assistant_context.next_focus or 'Não definida' }}
+  • Tags do PRD: {{ assistant_context.tags | join(', ') if assistant_context.tags else 'N/A' }}
+  • Requisitos MUST:
+{% for req in assistant_context.requirements or [] %}
+{%   if req.priority == 'MUST' %}     - {{ req.id or '?' }} {{ req.title or '' }}
+{%   endif %}
+{% endfor %}
+
+[Padrões recomendados pelo contexto]
+{% if pattern_suggestions %}
+{% for pattern in pattern_suggestions %}
+  {{ loop.index }}. {{ pattern.pattern_id }} ({{ pattern.category or 'N/A' }}) - {{ pattern.name or 'Sem nome' }}
+     tags: {{ pattern.tags | join(', ') if pattern.tags else 'N/A' }}
+{% endfor %}
+{% else %}
+  Nenhum padrão sugerido.
+{% endif %}
+
+[Padrões que funcionaram em projetos similares]
+{% if cache_suggestions %}
+{% for pattern in cache_suggestions %}
+  {{ loop.index }}. {{ pattern.pattern_id }} (sucesso {{ (pattern.success_rate or 0) * 100 | round(0) }}%)
+{% endfor %}
+{% else %}
+  Nenhum histórico disponível.
+{% endif %}
+======================================================================

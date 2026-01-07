@@ -1,0 +1,258 @@
+# F7 - Observability & Logging
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Implementar observabilidade completa com logs estruturados (JSON), tracing distribuído (OpenTelemetry) e métricas de negócio, garantindo LGPD compliance.
+
+## Regras de Negócio
+
+### Logging Estruturado
+- **Formato**: JSON obrigatório (não texto livre)
+- **Níveis**: DEBUG, INFO, WARN, ERROR, CRITICAL
+- **LGPD**: Zero PII em logs (sem emails, CPFs, senhas)
+- **Retenção**: 30 dias (produção), 7 dias (desenvolvimento)
+
+### Tracing Distribuído
+- **Padrão**: OpenTelemetry
+- **Sampling**: 100% em desenvolvimento, 10% em produção
+- **Context propagation**: Trace ID em todos os logs
+
+### Métricas de Negócio
+- **Eventos de produto**: Dictionary de eventos estruturado
+- **Métricas técnicas**: Latência, throughput, erros
+- **Dashboards**: Grafana ou equivalente
+
+---
+
+## Implementação por Stack
+
+{% if stack == "python-fastapi" %}
+### Logging Estruturado (structlog)
+
+```python
+# src/infrastructure/logging/logger.py
+import structlog
+import sys
+
+def setup_logging(environment: str = "development"):
+ """Configure structured logging"""
+ structlog.configure(
+ processors=[
+ structlog.stdlib.filter_by_level,
+ structlog.stdlib.add_logger_name,
+ structlog.stdlib.add_log_level,
+ structlog.stdlib.PositionalArgumentsFormatter(),
+ structlog.processors.TimeStamper(fmt="iso"),
+ structlog.processors.StackInfoRenderer(),
+ structlog.processors.format_exc_info,
+ structlog.processors.UnicodeDecoder(),
+ structlog.processors.JSONRenderer() if environment == "production" 
+ else structlog.dev.ConsoleRenderer(),
+ ],
+ context_class=dict,
+ logger_factory=structlog.stdlib.LoggerFactory(),
+ wrapper_class=structlog.stdlib.BoundLogger,
+ cache_logger_on_first_use=True,
+ )
+
+# Uso
+logger = structlog.get_logger()
+logger.info("user_action", 
+ action="login_attempt",
+ user_id="uuid-here", # Não usar email (PII)
+ ip_address="192.168.1.1",
+ success=True
+)
+```
+
+### OpenTelemetry Tracing
+
+```python
+# src/infrastructure/observability/tracing.py
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.resources import Resource
+
+def setup_tracing(service_name: str):
+ """Configure OpenTelemetry tracing"""
+ resource = Resource.create({"service.name": service_name})
+ provider = TracerProvider(resource=resource)
+ 
+ # OTLP exporter (Jaeger, Tempo, etc.)
+ otlp_exporter = OTLPSpanExporter(
+ endpoint="http://localhost:4317",
+ insecure=True
+ )
+ provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+ 
+ trace.set_tracer_provider(provider)
+ return trace.get_tracer(__name__)
+
+# Uso em endpoints
+from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__)
+
+@router.post("/api/v1/users")
+async def create_user(user_data: UserCreateDTO):
+ with tracer.start_as_current_span("create_user") as span:
+ span.set_attribute("user.email_domain", user_data.email.split("@")[1])
+ # ... lógica de criação
+ span.set_attribute("user.created", True)
+```
+
+### Métricas (Prometheus)
+
+```python
+# src/infrastructure/observability/metrics.py
+from prometheus_client import Counter, Histogram, Gauge
+
+# Métricas de negócio
+user_registrations = Counter(
+ 'user_registrations_total',
+ 'Total user registrations',
+ ['source']
+)
+
+api_request_duration = Histogram(
+ 'api_request_duration_seconds',
+ 'API request duration',
+ ['method', 'endpoint', 'status']
+)
+
+active_users = Gauge(
+ 'active_users_current',
+ 'Current active users'
+)
+
+# Uso
+user_registrations.labels(source='web').inc()
+api_request_duration.labels(method='POST', endpoint='/users', status='201').observe(0.15)
+```
+
+{% elif stack == "node-react" %}
+### Logging Estruturado (pino)
+
+```typescript
+// src/infrastructure/logging/logger.ts
+import pino from 'pino';
+
+export const logger = pino({
+ level: process.env.LOG_LEVEL || 'info',
+ formatters: {
+ level: (label) => ({ level: label }),
+ },
+ timestamp: pino.stdTimeFunctions.isoTime,
+});
+
+// Uso
+logger.info({
+ action: 'login_attempt',
+ user_id: 'uuid-here', // Não usar email (PII)
+ ip_address: '192.168.1.1',
+ success: true,
+}, 'User login attempt');
+```
+
+### OpenTelemetry Tracing
+
+```typescript
+// src/infrastructure/observability/tracing.ts
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-otlp-http';
+import { Resource } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+
+const sdk = new NodeSDK({
+ resource: new Resource({
+ [SemanticResourceAttributes.SERVICE_NAME]: 'my-service',
+ }),
+ traceExporter: new OTLPTraceExporter({
+ url: 'http://localhost:4318/v1/traces',
+ }),
+});
+
+sdk.start();
+```
+
+{% endif %}
+
+---
+
+## LGPD Compliance em Logs
+
+### Regras Obrigatórias
+
+1. **Nunca logar PII diretamente**:
+ - `logger.info(f"User {user.email} logged in")`
+ - `logger.info("user_login", user_id=user.id, email_domain=user.email.split("@")[1])`
+
+2. **Sanitizar dados sensíveis**:
+ ```python
+ def sanitize_for_logging(data: dict) -> dict:
+ """Remove PII from data before logging"""
+ sanitized = data.copy()
+ sanitized.pop('password', None)
+ sanitized.pop('cpf', None)
+ sanitized.pop('email', None) # Usar email_domain ao invés
+ return sanitized
+ ```
+
+3. **Retenção automática**:
+ - Logs devem expirar após 30 dias (produção)
+ - Configurar rotação automática
+
+---
+
+## Validações Obrigatórias
+
+### Logs Estruturados
+```bash
+# Validar formato JSON
+cat logs/app.log | jq . | head -n 10
+
+# Verificar ausência de PII
+grep -i "email\|cpf\|password" logs/app.log
+# Esperado: nenhum resultado (ou apenas hashes/domains)
+```
+
+### Tracing
+```bash
+# Verificar traces sendo enviados
+# (depende do backend: Jaeger UI, Tempo, etc.)
+```
+
+### Métricas
+```bash
+# Verificar métricas expostas
+curl http://localhost:8000/metrics
+# Esperado: métricas Prometheus format
+```
+
+---
+
+## Checklist de Validação
+
+- [ ] Logging estruturado (JSON) implementado
+- [ ] Zero PII em logs (LGPD compliance)
+- [ ] OpenTelemetry tracing configurado
+- [ ] Métricas de negócio expostas
+- [ ] Dashboards configurados (Grafana)
+- [ ] Retenção de logs configurada (30 dias)
+- [ ] Alertas configurados (erros críticos)
+- [ ] Documentação de eventos de produto criada
+
+---
+
+## Próximos Passos
+
+Após validar observabilidade:
+1. Prosseguir para **F8 - Segurança & Compliance**
+2. Configurar monitoramento contínuo
+3. Implementar alertas proativos
+

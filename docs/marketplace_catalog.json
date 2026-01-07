@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "pattern_api_gateway",
+      "name": "API Gateway Blueprint",
+      "description": "Conjunto de tasks/padrões para expor serviços internos via API Gateway com rate limiting e observabilidade",
+      "source": "patterns/api-patterns/restful-crud.md",
+      "target_dir": "marketplace/patterns",
+      "stack": ["python-fastapi", "node-react"],
+      "category": "integration"
+    },
+    {
+      "id": "hook_ci_traceability",
+      "name": "CI Traceability Workflow",
+      "description": "Workflow GitHub Actions pré-configurado com geração de commits.json e validação consultiva",
+      "source": "docs/ci_bootstrap_template.yml",
+      "target_dir": ".github/workflows",
+      "stack": [],
+      "category": "ci"
+    },
+    {
+      "id": "pattern_auth_jwt_fastapi",
+      "name": "JWT Auth for FastAPI",
+      "description": "Blueprint completo de autenticação JWT com refresh tokens e rotinas de segurança",
+      "source": "patterns/authentication/jwt-fastapi.md",
+      "target_dir": "marketplace/patterns",
+      "stack": ["python-fastapi"],
+      "category": "security"
+    },
+    {
+      "id": "prd_template_saas",
+      "name": "PRD Template - SaaS B2B",
+      "description": "PRD base para produtos SaaS B2B, com seções pré-definidas para métricas e integrações",
+      "source": "templates/prd/prd_template_saas.md",
+      "target_dir": "docs/prd-templates",
+      "stack": [],
+      "category": "documentation"
+    }
+  ]
+}

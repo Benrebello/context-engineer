@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Assistente Context Engineer</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #0f172a;
+            --panel: #11182c;
+            --accent: #06b6d4;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 2.5rem;
+            font-family: "Space Grotesk", "Segoe UI", system-ui;
+            background: radial-gradient(circle at top left, #1e293b, var(--bg));
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent);
+            padding: 0.25rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
+        section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.35);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            padding: 1rem;
+            border-radius: 0.8rem;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 1.25rem;
+            background: rgba(6, 182, 212, 0.08);
+        }
+
+        .card strong {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .trend {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .progress-wrapper {
+            margin-top: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.25);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22d3ee, #0ea5e9);
+        }
+
+        .phase-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.75rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.25rem 1rem;
+            color: var(--muted);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0 0;
+        }
+
+        li {
+            margin-bottom: 0.35rem;
+        }
+
+        .empty {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 1rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Context Engineer Assistant</h1>
+            <p>Guided report for {{ assistant_context.project_name or 'project' }}</p>
+        </div>
+        <span class="badge">Assist Flow</span>
+    </header>
+
+    <section>
+        <h2>Contexto Atual</h2>
+        <div class="grid">
+            <article class="card">
+                <strong>Stack</strong>
+                <span>{{ assistant_context.stack or 'indefinida' }}</span>
+            </article>
+            <article class="card">
+                <strong>Tasks geradas</strong>
+                <span>{{ assistant_context.task_count or 0 }}</span>
+            </article>
+            <article class="card">
+                <strong>Próxima fase sugerida</strong>
+                <span>{{ assistant_context.next_focus or 'Não definida' }}</span>
+            </article>
+            <article class="card">
+                <strong>Tags do PRD</strong>
+                <span>{{ assistant_context.tags | join(', ') if assistant_context.tags else 'N/A' }}</span>
+            </article>
+        </div>
+        <div class="card" style="margin-top: 1rem;">
+            <strong>Requisitos MUST</strong>
+            {% set musts = assistant_context.requirements | selectattr('priority', 'equalto', 'MUST') | list %}
+            {% if musts %}
+            <ul>
+                {% for req in musts %}
+                <li>{{ req.id or '?' }} &mdash; {{ req.title or 'Sem título' }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">Nenhum requisito MUST registrado.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section>
+        <h2>Métricas chave</h2>
+        <div class="grid">
+            <article class="metric-card">
+                <span class="metric-label">Story Points</span>
+                <span class="metric-value">{{ metrics.story_points | default(0) }}</span>
+                <span class="trend">estimados</span>
+            </article>
+            <article class="metric-card">
+                <span class="metric-label">Conclusão</span>
+                <span class="metric-value">{{ metrics.task_completion_rate | default(0) | round(1) }}%</span>
+                <span class="trend">taxa de tasks</span>
+            </article>
+            <article class="metric-card">
+                <span class="metric-label">Retrabalho</span>
+                <span class="metric-value">{{ metrics.rework_rate | default(0) | round(1) }}%</span>
+                <span class="trend">tendência atual</span>
+            </article>
+            <article class="metric-card">
+                <span class="metric-label">Cobertura</span>
+                <span class="metric-value">{{ metrics.test_coverage | default(0) | round(1) }}%</span>
+                <span class="trend">testes automatizados</span>
+            </article>
+        </div>
+        {% if sv %}
+        <div class="progress-wrapper">
+            <p>Conclusão geral do pipeline: {{ completion_ratio | round(0) }}%</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ completion_ratio | round(0) }}%;"></div>
+            </div>
+            <ul class="phase-list">
+                <li>[{{ 'OK' if completion.init else 'PENDENTE' }}] Inicialização</li>
+                <li>[{{ 'OK' if completion.prd else 'PENDENTE' }}] PRD</li>
+                <li>[{{ 'OK' if completion.prps else 'PENDENTE' }}] PRPs</li>
+                <li>[{{ 'OK' if completion.tasks else 'PENDENTE' }}] Tasks</li>
+                <li>[{{ 'OK' if completion.implementation else 'PENDENTE' }}] Implementação</li>
+            </ul>
+        </div>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Padrões recomendados pelo contexto</h2>
+        {% if pattern_suggestions %}
+        <div class="grid">
+            {% for pattern in pattern_suggestions %}
+            <article class="card">
+                <strong>{{ loop.index }}. {{ pattern.pattern_id }}</strong>
+                <p>{{ pattern.category or 'Categoria' }} &mdash; {{ pattern.name or 'Sem nome' }}</p>
+                <p class="empty">tags: {{ pattern.tags | join(', ') if pattern.tags else 'N/A' }}</p>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty">Nenhum padrão sugerido para o contexto atual.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Padrões que funcionaram em projetos similares</h2>
+        {% if cache_suggestions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Sucesso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pattern in cache_suggestions %}
+                <tr>
+                    <td>{{ pattern.pattern_id }}</td>
+                    <td>{{ (pattern.success_rate or 0) * 100 | round(0) }}%</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty">Nenhum histórico disponível.</p>
+        {% endif %}
+    </section>
+
+    <footer>
+        Gerado por Context Engineer em {{ assistant_context.generated_at or 'tempo real' }}
+    </footer>
+</body>
+</html>

@@ -1,0 +1,293 @@
+# F9 - CI/CD & Deploy
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Configurar pipeline CI/CD completo com testes automatizados, validações de qualidade, segurança e deploy automatizado seguindo GitOps.
+
+## Regras de Negócio
+
+### Pipeline CI/CD
+- **Triggers**: Push para `main`, Pull Requests
+- **Stages**: Test → Lint → Security → Build → Deploy
+- **Fail Fast**: Pipeline para na primeira falha crítica
+- **Paralelização**: Testes e validações em paralelo quando possível
+
+### Ambientes
+- **Development**: Auto-deploy em cada commit
+- **Staging**: Deploy manual ou via PR merge
+- **Production**: Deploy apenas via tags versionadas
+
+### GitOps
+- **Infrastructure as Code**: Terraform/Pulumi
+- **Configuração**: Git como fonte única de verdade
+- **Rollback**: Automático em caso de falha de health check
+
+---
+
+## Pipeline CI/CD
+
+### GitHub Actions (Exemplo)
+
+```yaml
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline
+
+on:
+ push:
+ branches: [main, develop]
+ pull_request:
+ branches: [main]
+
+jobs:
+ test:
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ - name: Setup {{ stack }}
+ {% if stack == "python-fastapi" %}
+ - uses: actions/setup-python@v4
+ with:
+ python-version: '3.11'
+ - name: Install dependencies
+ run: |
+ pip install -r requirements.txt
+ pip install -r requirements-dev.txt
+ - name: Run tests
+ run: {{ stack_commands.test }} --cov=src --cov-report=xml
+ {% elif stack == "node-react" %}
+ - uses: actions/setup-node@v3
+ with:
+ node-version: '20'
+ - name: Install dependencies
+ run: npm ci
+ - name: Run tests
+ run: {{ stack_commands.test }} --coverage
+ {% endif %}
+ - name: Upload coverage
+ uses: codecov/codecov-action@v3
+ with:
+ file: ./coverage.xml
+
+ lint:
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ {% if stack == "python-fastapi" %}
+ - uses: actions/setup-python@v4
+ with:
+ python-version: '3.11'
+ - name: Run linting
+ run: {{ stack_commands.lint }}
+ {% elif stack == "node-react" %}
+ - uses: actions/setup-node@v3
+ with:
+ node-version: '20'
+ - name: Run linting
+ run: {{ stack_commands.lint }}
+ {% endif %}
+
+ security:
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ {% if stack == "python-fastapi" %}
+ - uses: actions/setup-python@v4
+ with:
+ python-version: '3.11'
+ - name: Security scan
+ run: |
+ pip install bandit safety
+ bandit -r src/
+ safety check
+ {% elif stack == "node-react" %}
+ - uses: actions/setup-node@v3
+ with:
+ node-version: '20'
+ - name: Security scan
+ run: npm audit --audit-level=moderate
+ {% endif %}
+
+ build:
+ needs: [test, lint, security]
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ {% if stack == "python-fastapi" %}
+ - name: Build Docker image
+ run: |
+ docker build -t {{ project_name }}:${GITHUB_SHA} .
+ {% elif stack == "node-react" %}
+ - name: Build application
+ run: npm run build
+ {% endif %}
+
+ deploy-staging:
+ needs: [build]
+ if: github.ref == 'refs/heads/develop'
+ runs-on: ubuntu-latest
+ steps:
+ - name: Deploy to staging
+ run: |
+ # Deploy logic here
+ echo "Deploying to staging..."
+
+ deploy-production:
+ needs: [build]
+ if: startsWith(github.ref, 'refs/tags/v')
+ runs-on: ubuntu-latest
+ steps:
+ - name: Deploy to production
+ run: |
+ # Deploy logic here
+ echo "Deploying to production..."
+```
+
+---
+
+## Deploy Strategies
+
+### Blue-Green Deployment
+- **Objetivo**: Zero downtime
+- **Processo**: Deploy nova versão em paralelo, switch de tráfego, manter antiga como fallback
+
+### Canary Deployment
+- **Objetivo**: Teste gradual em produção
+- **Processo**: 10% → 50% → 100% do tráfego
+
+### Rolling Deployment
+- **Objetivo**: Atualização gradual
+- **Processo**: Atualizar instâncias uma a uma
+
+---
+
+## Infrastructure as Code
+
+### Terraform (Exemplo)
+
+```hcl
+# infrastructure/main.tf
+resource "aws_ecs_service" "app" {
+ name = "{{ project_name }}"
+ cluster = aws_ecs_cluster.main.id
+ task_definition = aws_ecs_task_definition.app.arn
+ desired_count = 2
+
+ load_balancer {
+ target_group_arn = aws_lb_target_group.app.arn
+ container_name = "{{ project_name }}"
+ container_port = 8000
+ }
+}
+```
+
+---
+
+## Health Checks
+
+### Application Health Endpoint
+
+{% if stack == "python-fastapi" %}
+```python
+# src/interfaces/api/health.py
+from fastapi import APIRouter
+from datetime import datetime
+
+router = APIRouter()
+
+@router.get("/health")
+async def health_check():
+ """Health check endpoint for load balancer"""
+ return {
+ "status": "healthy",
+ "timestamp": datetime.utcnow().isoformat(),
+ "version": "1.0.0"
+ }
+
+@router.get("/health/ready")
+async def readiness_check():
+ """Readiness check (database, external services)"""
+ # Check database connection
+ # Check external APIs
+ return {"status": "ready"}
+
+@router.get("/health/live")
+async def liveness_check():
+ """Liveness check (application is running)"""
+ return {"status": "alive"}
+```
+
+{% elif stack == "node-react" %}
+```typescript
+// src/routes/health.ts
+import { Router } from 'express';
+
+const router = Router();
+
+router.get('/health', (req, res) => {
+ res.json({
+ status: 'healthy',
+ timestamp: new Date().toISOString(),
+ version: '1.0.0',
+ });
+});
+
+export default router;
+```
+
+{% endif %}
+
+---
+
+## Rollback Strategy
+
+### Automático
+- Health check falha → Rollback automático
+- Métricas degradadas → Rollback automático
+
+### Manual
+- Via GitOps: Reverter commit
+- Via CI/CD: Deploy versão anterior
+
+---
+
+## Validações Obrigatórias
+
+### Pipeline
+```bash
+# Validar pipeline localmente
+# GitHub Actions: act
+# GitLab CI: gitlab-runner exec
+```
+
+### Deploy
+```bash
+# Validar configuração de deploy
+# Verificar variáveis de ambiente
+# Validar secrets
+```
+
+### Checklist de Validação
+
+- [ ] Pipeline CI/CD configurado
+- [ ] Testes automatizados no pipeline
+- [ ] Linting no pipeline
+- [ ] Security scanning no pipeline
+- [ ] Build automatizado
+- [ ] Deploy automatizado (staging/production)
+- [ ] Health checks implementados
+- [ ] Rollback strategy definida
+- [ ] Infrastructure as Code configurada
+- [ ] Monitoramento de deploy configurado
+
+---
+
+## Próximos Passos
+
+Após validar CI/CD:
+1. **Projeto completo e pronto para produção**
+2. Monitorar métricas de deploy
+3. Otimizar pipeline baseado em feedback
+

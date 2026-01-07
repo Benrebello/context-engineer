@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard - {{ project_name }}</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 40px; color: #0f172a; }
+      h1, h2 { color: #0f172a; }
+      .risk-high { color: #dc2626; }
+      .risk-medium { color: #d97706; }
+      .risk-low { color: #16a34a; }
+      .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+    </style>
+  </head>
+  <body>
+    <h1>Dashboard de Eficiência - {{ project_name }}</h1>
+    <section class="card">
+      <h2>Métricas Principais</h2>
+      <ul>
+        <li>Taxa de conclusão: {{ metrics.task_completion_rate | round(1) }}%</li>
+        <li>Taxa de retrabalho: {{ metrics.rework_rate | round(1) }}%</li>
+        <li>Cobertura de testes: {{ metrics.test_coverage_achieved | round(1) }}%</li>
+        <li>Qualidade do código: {{ metrics.code_quality_score | round(1) }}/10</li>
+        <li>Tempo geração PRP: {{ metrics.prp_generation_time_minutes | round(1) }} min</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Análise</h2>
+      <p class="risk-{{ analysis.rework_risk }}">Risco de retrabalho: {{ analysis.rework_risk | upper }}</p>
+      <p class="risk-{{ analysis.completion_risk }}">Risco de conclusão: {{ analysis.completion_risk | upper }}</p>
+      <p>Score geral: {{ analysis.overall_score | round(1) }}</p>
+    </section>
+    {% if roi_metrics.context_pruning_events > 0 %}
+    <section>
+      <h2>ROI - Context Pruning</h2>
+      <ul>
+        <li>Tokens economizados: {{ "{:,}".format(roi_metrics.tokens_saved) }}</li>
+        <li>Tokens utilizados: {{ "{:,}".format(roi_metrics.tokens_used) }}</li>
+        <li>Taxa de economia: {{ roi_metrics.savings_percentage | round(1) }}%</li>
+        <li>Eventos de pruning: {{ roi_metrics.context_pruning_events }}</li>
+        <li>Custo estimado economizado: ${{ "{:.2f}".format(roi_metrics.estimated_cost_saved_usd) }}</li>
+      </ul>
+    </section>
+    {% endif %}
+  </body>
+</html>

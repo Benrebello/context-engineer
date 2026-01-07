@@ -1,0 +1,35 @@
+{
+  "project_name": "example-project",
+  "commit_mapping": [
+    {
+      "task_id": "FR-001",
+      "commits": [
+        {
+          "hash": "abc1234",
+          "message": "feat: implement login flow"
+        },
+        {
+          "hash": "def5678",
+          "message": "test: add coverage for login"
+        }
+      ],
+      "pull_requests": [
+        {
+          "id": 42,
+          "title": "Implement login flow",
+          "url": "https://example.com/org/repo/pull/42"
+        }
+      ]
+    },
+    {
+      "task_id": "FR-002",
+      "commits": [
+        {
+          "hash": "9012abc",
+          "message": "fix: adjust error handling"
+        }
+      ],
+      "pull_requests": []
+    }
+  ]
+}

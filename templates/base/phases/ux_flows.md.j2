@@ -1,0 +1,201 @@
+# F4 - UX Flows & Componentes
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Definir fluxos de usuário, componentes UI reutilizáveis e padrões de acessibilidade seguindo Design System e WCAG 2.1 AA.
+
+## Regras de Negócio
+
+### Design System
+- **Componentes atômicos**: Botões, inputs, cards
+- **Padrões de layout**: Grid system, spacing tokens
+- **Acessibilidade**: WCAG 2.1 AA obrigatório
+- **Responsividade**: Mobile-first (breakpoints: sm, md, lg, xl)
+
+### Acessibilidade Obrigatória
+- `aria-label` em todos os elementos interativos
+- Navegação por teclado funcional
+- Contraste mínimo 4.5:1 (texto normal) ou 3:1 (texto grande)
+- Focus visible em todos os elementos focáveis
+
+### Performance Budgets
+- First Contentful Paint (FCP) ≤ 1.8s
+- Largest Contentful Paint (LCP) ≤ 2.5s
+- Cumulative Layout Shift (CLS) ≤ 0.1
+
+---
+
+## Estrutura de Componentes
+
+{% if stack == "node-react" %}
+### Exemplo: Componente Base (React + Tailwind)
+
+```typescript
+// src/components/ui/Button.tsx
+import React from 'react';
+
+interface ButtonProps {
+ children: React.ReactNode;
+ onClick?: () => void;
+ variant?: 'primary' | 'secondary' | 'danger';
+ disabled?: boolean;
+ 'aria-label'?: string; // Obrigatório para acessibilidade
+}
+
+export const Button: React.FC<ButtonProps> = ({
+ children,
+ onClick,
+ variant = 'primary',
+ disabled = false,
+ 'aria-label': ariaLabel,
+}) => {
+ const baseClasses = 'px-4 py-2 rounded-md font-medium transition-colors';
+ const variantClasses = {
+ primary: 'bg-blue-600 text-white hover:bg-blue-700',
+ secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
+ danger: 'bg-red-600 text-white hover:bg-red-700',
+ };
+ 
+ return (
+ <button
+ onClick={onClick}
+ disabled={disabled}
+ aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
+ className={`${baseClasses} ${variantClasses[variant]} ${
+ disabled ? 'opacity-50 IDE-not-allowed' : ''
+ }`}
+ onFocus={(e) => e.currentTarget.classList.add('ring-2', 'ring-blue-500')}
+ onBlur={(e) => e.currentTarget.classList.remove('ring-2', 'ring-blue-500')}
+ >
+ {children}
+ </button>
+ );
+};
+```
+
+### Exemplo: Fluxo de Navegação
+
+```typescript
+// src/components/navigation/NavBar.tsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+export const NavBar: React.FC = () => {
+ return (
+ <nav role="navigation" aria-label="Navegação principal">
+ <ul className="flex space-x-4">
+ <li>
+ <Link
+ to="/"
+ className="text-blue-600 hover:text-blue-800"
+ aria-label="Ir para página inicial"
+ >
+ Home
+ </Link>
+ </li>
+ {/* Mais itens de navegação */}
+ </ul>
+ </nav>
+ );
+};
+```
+
+{% elif stack == "python-fastapi" %}
+### Exemplo: Templates Jinja2 (FastAPI + Jinja2)
+
+```python
+# src/interfaces/web/templates/components/button.html
+<button
+ type="{{ button_type or 'button' }}"
+ class="px-4 py-2 rounded-md font-medium {{ variant_classes }}"
+ {% if disabled %}disabled{% endif %}
+ aria-label="{{ aria_label or button_text }}"
+ onfocus="this.classList.add('ring-2', 'ring-blue-500')"
+ onblur="this.classList.remove('ring-2', 'ring-blue-500')"
+>
+ {{ button_text }}
+</button>
+```
+
+### Exemplo: Rotas e URLs
+
+```python
+# src/interfaces/web/routes.py
+from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
+
+router = APIRouter()
+
+@router.get("/", response_class=HTMLResponse)
+async def home():
+ """Home page route"""
+ return templates.TemplateResponse("home.html", {
+ "request": request,
+ "page_title": "Home"
+ })
+```
+
+{% endif %}
+
+---
+
+## Fluxos de Usuário Principais
+
+### 1. Autenticação
+- **Login**: Email + Senha → JWT Token
+- **Logout**: Invalidação de token
+- **Recuperação de senha**: Email → Token temporário → Nova senha
+
+### 2. Navegação Principal
+- **Home** → Dashboard/Listagem
+- **Detalhes** → Formulário/Edição
+- **Busca** → Filtros → Resultados
+
+---
+
+## Validações Obrigatórias
+
+### Acessibilidade
+{% if stack_commands %}
+```bash
+# Executar auditoria de acessibilidade
+{{ stack_commands.test }} --testNamePattern="accessibility"
+```
+{% else %}
+```bash
+# Executar auditoria de acessibilidade
+npm run test:a11y # ou pytest tests/a11y/
+```
+{% endif %}
+
+### Performance
+```bash
+# Lighthouse CI (se configurado)
+npm run lighthouse
+
+# Web Vitals
+npm run vitals
+```
+
+### Checklist de Validação
+
+- [ ] Componentes criados com `aria-label` obrigatório
+- [ ] Navegação por teclado funcional
+- [ ] Contraste de cores validado (≥ 4.5:1)
+- [ ] Focus visible em todos os elementos
+- [ ] Responsividade testada (mobile, tablet, desktop)
+- [ ] Performance budgets respeitados (FCP, LCP, CLS)
+- [ ] Testes de acessibilidade passando
+
+---
+
+## Próximos Passos
+
+Após validar UX Flows:
+1. Prosseguir para **F5 - Observability & Logging**
+2. Implementar componentes seguindo Design System
+3. Configurar testes E2E com Playwright/Cypress
+

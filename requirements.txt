@@ -1,0 +1,19 @@
+# Context Engineer Core Dependencies
+click>=8.0.0
+jinja2>=3.0.0
+pyyaml>=6.0
+jsonschema>=4.0.0
+numpy>=1.24.0  # For semantic similarity calculations
+rich>=13.0.0  # For progress bars and beautiful terminal output
+
+# Optional: For semantic embeddings (install separately if needed)
+# sentence-transformers>=2.2.0  # For semantic search with embeddings
+# torch>=2.0.0  # Required by sentence-transformers
+
+# Optional: For advanced features
+# openai>=1.0.0  # For AI integration
+# anthropic>=0.3.0  # For Claude integration
+# google-genai>=0.1.0  # For Google GenAI integration
+# grok>=0.1.0  # For Grok integration
+
+

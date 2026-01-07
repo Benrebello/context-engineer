@@ -1,0 +1,265 @@
+# F6 - Qualidade & Testes
+
+## Contexto
+Projeto: {{ project_name }}
+Stack: {{ stack }}
+
+## Objetivo
+Garantir qualidade de código através de testes automatizados, linting, formatação e cobertura mínima de 80%, respeitando performance budgets.
+
+## Regras de Negócio
+
+### Cobertura de Testes
+- **Mínimo obrigatório**: 80% de cobertura
+- **Tipos de teste**: Unitários, Integração, E2E, BDD (Gherkin)
+- **Testes críticos**: 100% de cobertura (autenticação, pagamento, LGPD)
+
+### Performance Budgets
+- **API p95**: ≤ 200ms
+- **Frontend Bundle**: ≤ 250KB (gzipped)
+- **Test Execution**: ≤ 5 minutos (CI/CD)
+
+### Qualidade de Código
+- **Zero erros** de linting
+- **Formatação** consistente (Black/Prettier)
+- **Type checking** obrigatório (mypy/TypeScript strict)
+
+---
+
+## Estrutura de Testes
+
+{% if stack == "python-fastapi" %}
+### Estrutura de Diretórios
+
+```
+tests/
+├── unit/ # Testes unitários
+│ ├── domain/
+│ ├── application/
+│ └── infrastructure/
+├── integration/ # Testes de integração
+│ ├── api/
+│ └── database/
+├── bdd/ # Testes BDD (Gherkin)
+│ └── features/
+└── fixtures/ # Dados de teste
+```
+
+### Exemplo: Teste Unitário
+
+```python
+# tests/unit/domain/test_user.py
+import pytest
+from src.domain.entities.user import User
+
+def test_user_creation():
+ """Test user entity creation"""
+ user = User(
+ email="test@example.com",
+ full_name="Test User",
+ password_hash="hashed_password"
+ )
+ assert user.email == "test@example.com"
+ assert user.is_active is True
+```
+
+### Exemplo: Teste de Integração
+
+```python
+# tests/integration/api/test_auth.py
+import pytest
+from fastapi.testclient import TestClient
+from src.main import app
+
+client = TestClient(app)
+
+def test_login_success():
+ """Test successful login"""
+ response = client.post("/api/v1/auth/login", json={
+ "email": "test@example.com",
+ "password": "password123"
+ })
+ assert response.status_code == 200
+ assert "access_token" in response.json()
+```
+
+### Exemplo: Teste BDD (Gherkin)
+
+```gherkin
+# tests/bdd/features/authentication.feature
+Feature: User Authentication
+ Scenario: Successful login
+ Given I am a registered user
+ When I submit valid credentials
+ Then I should receive a JWT token
+ And I should be redirected to dashboard
+```
+
+{% elif stack == "node-react" %}
+### Estrutura de Diretórios
+
+```
+tests/
+├── unit/ # Testes unitários (Vitest)
+├── integration/ # Testes de integração
+├── e2e/ # Testes E2E (Playwright)
+└── __mocks__/ # Mocks e fixtures
+```
+
+### Exemplo: Teste Unitário
+
+```typescript
+// tests/unit/components/Button.test.tsx
+import { render, screen } from '@testing-library/react';
+import { Button } from '@/components/ui/Button';
+
+describe('Button', () => {
+ it('renders with correct aria-label', () => {
+ render(<Button aria-label="Submit form">Submit</Button>);
+ const button = screen.getByRole('button', { name: 'Submit form' });
+ expect(button).toBeInTheDocument();
+ });
+});
+```
+
+### Exemplo: Teste E2E
+
+```typescript
+// tests/e2e/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('user can login', async ({ page }) => {
+ await page.goto('/login');
+ await page.fill('[name="email"]', 'test@example.com');
+ await page.fill('[name="password"]', 'password123');
+ await page.click('button[type="submit"]');
+ await expect(page).toHaveURL('/dashboard');
+});
+```
+
+{% endif %}
+
+---
+
+## Validações Obrigatórias
+
+### Testes
+{% if stack_commands %}
+```bash
+# Executar testes com cobertura
+{{ stack_commands.test }} --cov=src --cov-report=term-missing
+# Esperado: coverage >= 80%
+
+# Executar testes BDD
+{{ stack_commands.test }} tests/bdd/
+```
+{% else %}
+```bash
+# Executar testes com cobertura
+pytest --cov=src --cov-report=term-missing
+# Esperado: coverage >= 80%
+```
+{% endif %}
+
+### Linting & Formatação
+{% if stack_commands %}
+```bash
+# Executar linting
+{{ stack_commands.lint }}
+# Esperado: no errors
+
+# Executar formatação
+{{ stack_commands.format }} --check .
+# Esperado: All done!
+```
+{% else %}
+```bash
+# Executar linting
+ruff check .
+# Esperado: no errors
+
+# Executar formatação
+black --check .
+# Esperado: All done!
+```
+{% endif %}
+
+### Type Checking
+{% if stack == "python-fastapi" %}
+```bash
+# Type checking (mypy)
+mypy src/
+# Esperado: Success: no issues found
+```
+{% elif stack == "node-react" %}
+```bash
+# Type checking (TypeScript)
+npm run type-check
+# Esperado: no errors
+```
+{% endif %}
+
+### Performance
+```bash
+# Validar performance budgets
+# API p95 <= 200ms
+# Bundle size <= 250KB
+```
+
+---
+
+## Configuração de CI/CD
+
+### GitHub Actions (Exemplo)
+
+```yaml
+# .github/workflows/quality.yml
+name: Quality Checks
+
+on: [push, pull_request]
+
+jobs:
+ test:
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ - name: Run tests
+ run: {{ stack_commands.test }} --cov
+ - name: Check coverage
+ run: |
+ coverage=$({{ stack_commands.test }} --cov-report=term | grep TOTAL | awk '{print $NF}')
+ if (( $(echo "$coverage < 80" | bc -l) )); then
+ echo "Coverage $coverage% is below 80%"
+ exit 1
+ fi
+ 
+ lint:
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v3
+ - name: Run linting
+ run: {{ stack_commands.lint }}
+```
+
+---
+
+## Checklist de Validação
+
+- [ ] Testes unitários criados (≥ 80% cobertura)
+- [ ] Testes de integração implementados
+- [ ] Testes BDD (Gherkin) para features críticas
+- [ ] Linting sem erros
+- [ ] Formatação consistente
+- [ ] Type checking passando
+- [ ] Performance budgets respeitados
+- [ ] CI/CD configurado com validações
+
+---
+
+## Próximos Passos
+
+Após validar qualidade:
+1. Prosseguir para **F7 - Observability & Logging**
+2. Configurar monitoramento contínuo
+3. Implementar alertas de qualidade
+

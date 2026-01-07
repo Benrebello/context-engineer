@@ -1,0 +1,137 @@
+{
+  "policies": {
+    "language": {
+      "explanations_default": "EN-US",
+      "alternate_language": "PT-BR",
+      "code_comments_docstrings": "EN-US"
+    },
+    "performance_budgets": {
+      "api_p95_ms": 200,
+      "frontend_bundle_kb": 250
+    },
+    "security_privacy": {
+      "lgpd_default": true,
+      "no_pii_in_logs": true,
+      "retention_documented": true
+    },
+    "observability": {
+      "structured_logs_json": true,
+      "tracing_opentelemetry": true,
+      "product_events_dictionary": true
+    },
+    "commits": "Conventional Commits",
+    "architecture": "Clean Architecture (domain/app/infra/interfaces)",
+    "testing": [
+      "unit",
+      "integration",
+      "contract"
+    ]
+  },
+  "rules": [
+    {
+      "id": 1,
+      "importance": "critical",
+      "description": "Analyze and strictly adhere to the existing architecture, linting conventions, and project standards. Do not introduce new patterns without explicit guidance."
+    },
+    {
+      "id": 2,
+      "importance": "critical",
+      "description": "Perform a complete semantic search across the codebase before generating new code. Always prefer reusing existing components, functions, and services."
+    },
+    {
+      "id": 3,
+      "importance": "high",
+      "description": "Apply the DRY principle: whenever you detect repeated logic, extract it into a reusable function, method, or component."
+    },
+    {
+      "id": 4,
+      "importance": "high",
+      "description": "Structure every new module following SOLID and the Clean Architecture layers identified in the project (domain, application, infrastructure, interfaces)."
+    },
+    {
+      "id": 5,
+      "importance": "high",
+      "description": "When a task begins with a failing test (TDD workflow), follow the sequence: 1) confirm the test fails, 2) implement the simplest code to make it pass, 3) propose refactors if applicable."
+    },
+    {
+      "id": 6,
+      "importance": "high",
+      "description": "For BDD workflows, whenever a specification (e.g., Gherkin) is provided, generate the step definitions and application logic necessary to satisfy the acceptance criteria."
+    },
+    {
+      "id": 7,
+      "importance": "critical",
+      "description": "Maintain technology consistency. Only use languages, frameworks, and libraries that already exist in the project manifests (e.g., package.json, pom.xml, requirements.txt)."
+    },
+    {
+      "id": 8,
+      "importance": "medium",
+      "description": "Create or update documentation (docstrings, JSDoc, KDoc, etc.) for every public function or class you modify, explaining purpose, parameters, and return values."
+    },
+    {
+      "id": 9,
+      "importance": "high",
+      "description": "At the end of every change, provide a technical changelog summarizing what was done, which files were touched, and the reasoning."
+    },
+    {
+      "id": 10,
+      "importance": "medium",
+      "description": "When editing existing code, analyze the surrounding context. If you notice code smells or optimization opportunities, propose refactors and explain the benefits."
+    },
+    {
+      "id": 11,
+      "importance": "high",
+      "description": "Whenever a commit message is requested, follow the Conventional Commits format (feat, fix, refactor, etc.) based on the actual change."
+    },
+    {
+      "id": 12,
+      "importance": "critical",
+      "description": "All communication and explanations in the assistant conversation must be in Brazilian Portuguese."
+    },
+    {
+      "id": 13,
+      "importance": "critical",
+      "description": "All documentation and comments in the code must be written in English."
+    },
+    {
+      "id": 14,
+      "importance": "high",
+      "description": "Always explain what was changed and the rationale behind each edit."
+    },
+    {
+      "id": 15,
+      "importance": "high",
+      "description": "Preserve the existing structure. Do not rearrange files or modules unless it is absolutely necessary."
+    },
+    {
+      "id": 16,
+      "importance": "medium",
+      "description": "Search the entire codebase before altering or implementing new logic."
+    },
+    {
+      "id": 17,
+      "importance": "high",
+      "description": "Do not create new files if related ones already exist. Reuse or extend the current artifacts whenever possible."
+    },
+    {
+      "id": 18,
+      "importance": "critical",
+      "description": "Keep the overall structure organized at all times."
+    },
+    {
+      "id": 19,
+      "importance": "high",
+      "description": "Before adding a new dependency, verify if an equivalent is already available in the project."
+    },
+    {
+      "id": 20,
+      "importance": "critical",
+      "description": "Respect the project's established languages and technologies (e.g., Tailwind CSS)."
+    }
+  ],
+  "precedence": [
+    "critical",
+    "high",
+    "medium"
+  ]
+}
