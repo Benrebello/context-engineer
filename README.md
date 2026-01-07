@@ -8,6 +8,24 @@
 
 ---
 
+## ⚠️ Installation Notice / Aviso de Instalação
+
+**English:** This framework has not yet been published to PyPI. To install and create the `context-engineer.egg-info` package, you must clone the repository and install it in editable mode:
+```bash
+git clone https://github.com/Benrebello/context-engineer
+cd context-engineer
+uv pip install -e .
+```
+
+**Português:** Este framework ainda não foi publicado no PyPI. Para instalar e criar o pacote `context-engineer.egg-info`, você deve clonar o repositório e instalá-lo em modo editável:
+```bash
+git clone https://github.com/Benrebello/context-engineer
+cd context-engineer
+uv pip install -e .
+```
+
+---
+
 ## English Reference
 
 ### Overview
@@ -16,6 +34,7 @@
 - Works with AI copilots (semantic embeddings via `--ai`) or in lightweight mode (`--no-ai`), with governance handled by Soft-Gate Git hooks.
 
 ### Installation & Environment
+
 | Scenario | Command(s) |
 |----------|------------|
 | Fast path | `uv pip install context-engineer` (+ `"context-engineer[ai]"` for semantic search) |
@@ -95,6 +114,7 @@ This project follows the guidelines of the original project.
 - Funciona com copilots de IA (embeddings semânticos via `--ai`) ou em modo leve (`--no-ai`), com governança gerenciada por Git hooks Soft-Gate.
 
 ### Instalação e Ambiente
+
 | Cenário | Comando(s) |
 |---------|------------|
 | Caminho rápido | `uv pip install context-engineer` (+ `"context-engineer[ai]"` para busca semântica) |
