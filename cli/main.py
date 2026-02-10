@@ -10,8 +10,9 @@ from cli.commands.ai_governance import ai_governance
 from cli.commands.alias import alias
 from cli.commands.autopilot import autopilot
 from cli.commands.commit import generate_commit_map
-from cli.commands.devops import ci_bootstrap, install_hooks, mock_server
+from cli.commands.devops import ci_bootstrap, git_setup, install_hooks, mock_server
 from cli.commands.doctor import doctor
+from cli.commands.explore import explore
 from cli.commands.generation import (
     check_dependencies,
     estimate_batch,
@@ -25,9 +26,9 @@ from cli.commands.generation import (
 from cli.commands.ide import ide
 from cli.commands.marketplace import marketplace
 from cli.commands.patterns import patterns
-from cli.commands.reporting import ai_status, metrics_summary, report
-from cli.commands.explore import explore
+from cli.commands.provider import provider
 from cli.commands.quickstart import quickstart
+from cli.commands.reporting import ai_status, metrics_summary, report
 from cli.commands.status import assist, checklist, status, wizard
 from cli.shared import (
     configure_logging as shared_configure_logging,
@@ -38,6 +39,7 @@ from cli.shared import (
 from cli.shared import (
     load_project_config as shared_load_project_config,
 )
+from core import __version__ as core_version
 from core.cache import TRANSFORMERS_AVAILABLE as core_transformers_available
 from core.engine import ContextEngine as CoreContextEngine
 
@@ -52,7 +54,7 @@ subprocess = subprocess
 
 
 @click.group()
-@click.version_option(version="1.0.0")
+@click.version_option(version=core_version)
 @click.option(
     "--verbose",
     "-v",
@@ -80,21 +82,19 @@ def cli(verbose: bool, quiet: bool, log_level: str | None, install_completion: s
     if install_completion:
         _install_shell_completion(install_completion)
         return
-    
+
     configure_logging(verbose=verbose, quiet=quiet, level=log_level)
     # Os comandos são registrados dinamicamente em _register_commands().
 
 
 def _install_shell_completion(shell: str) -> None:
     """Install shell completion for the specified shell."""
-    import os
-    import subprocess
     from pathlib import Path
-    
+
     shell = shell.lower()
-    
+
     click.echo(f"\nInstalling {shell} completion for Context Engineer CLI...\n")
-    
+
     completion_scripts = {
         "bash": {
             "file": "~/.bashrc",
@@ -108,58 +108,57 @@ def _install_shell_completion(shell: str) -> None:
         },
         "fish": {
             "file": "~/.config/fish/completions/ce.fish",
-            "content": 'eval (env _CE_COMPLETE=fish_source ce)',
+            "content": "eval (env _CE_COMPLETE=fish_source ce)",
             "test": "ce --help > /dev/null 2>&1; and echo 'OK'; or echo 'FAIL'",
         },
         "powershell": {
             "file": "$PROFILE",
-            "content": 'Invoke-Expression (& ce --completion powershell)',
+            "content": "Invoke-Expression (& ce --completion powershell)",
             "test": "ce --help",
         },
     }
-    
+
     if shell not in completion_scripts:
         click.secho(f"Error: Shell '{shell}' not supported", fg="red")
         click.echo(f"Supported shells: {', '.join(completion_scripts.keys())}")
         return
-    
+
     config = completion_scripts[shell]
     config_file = Path(config["file"]).expanduser()
-    
+
     # Create directory if needed (for fish)
     if shell == "fish":
         config_file.parent.mkdir(parents=True, exist_ok=True)
         config_file.write_text(config["content"] + "\n")
         click.secho(f"[OK] Created {config_file}", fg="green")
-    else:
-        # Append to rc file
-        if config_file.exists():
-            content = config_file.read_text()
-            if config["content"] in content:
-                click.secho(f"[OK] Completion already installed in {config_file}", fg="yellow")
-            else:
-                with open(config_file, "a") as f:
-                    f.write(f"\n# Context Engineer CLI completion\n{config['content']}\n")
-                click.secho(f"[OK] Added completion to {config_file}", fg="green")
+    # Append to rc file
+    elif config_file.exists():
+        content = config_file.read_text()
+        if config["content"] in content:
+            click.secho(f"[OK] Completion already installed in {config_file}", fg="yellow")
         else:
-            click.secho(f"Warning: {config_file} not found, creating it...", fg="yellow")
-            config_file.write_text(f"# Context Engineer CLI completion\n{config['content']}\n")
-            click.secho(f"[OK] Created {config_file}", fg="green")
-    
-    click.echo(f"\nNext steps:")
-    click.echo(f"  1. Reload your shell configuration:")
+            with open(config_file, "a") as f:
+                f.write(f"\n# Context Engineer CLI completion\n{config['content']}\n")
+            click.secho(f"[OK] Added completion to {config_file}", fg="green")
+    else:
+        click.secho(f"Warning: {config_file} not found, creating it...", fg="yellow")
+        config_file.write_text(f"# Context Engineer CLI completion\n{config['content']}\n")
+        click.secho(f"[OK] Created {config_file}", fg="green")
+
+    click.echo("\nNext steps:")
+    click.echo("  1. Reload your shell configuration:")
     if shell == "bash":
-        click.echo(f"     source ~/.bashrc")
+        click.echo("     source ~/.bashrc")
     elif shell == "zsh":
-        click.echo(f"     source ~/.zshrc")
+        click.echo("     source ~/.zshrc")
     elif shell == "fish":
-        click.echo(f"     # Fish will auto-load on next shell start")
+        click.echo("     # Fish will auto-load on next shell start")
     elif shell == "powershell":
-        click.echo(f"     . $PROFILE")
-    
-    click.echo(f"\n  2. Test completion:")
-    click.echo(f"     ce <TAB><TAB>")
-    click.echo(f"\nCompletion installed successfully!\n")
+        click.echo("     . $PROFILE")
+
+    click.echo("\n  2. Test completion:")
+    click.echo("     ce <TAB><TAB>")
+    click.echo("\nCompletion installed successfully!\n")
 
 
 def _register_commands() -> None:
@@ -198,9 +197,13 @@ def _register_commands() -> None:
 
     # DevOps e utilidades
     cli.add_command(ci_bootstrap)
+    cli.add_command(git_setup)
     cli.add_command(install_hooks)
     cli.add_command(mock_server)
     cli.add_command(alias)
+
+    # Configuração de provedores LLM
+    cli.add_command(provider)
 
 
 _register_commands()

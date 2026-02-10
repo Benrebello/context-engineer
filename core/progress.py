@@ -18,6 +18,7 @@ try:
         TimeElapsedColumn,
         TimeRemainingColumn,
     )
+
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -158,7 +159,7 @@ def progress_context(description: str, total: int | None = None, enabled: bool =
     """
     tracker = ProgressTracker(enabled=enabled)
     with tracker:
-        task_id = tracker.add_task(description, total=total, task_id="main")
+        tracker.add_task(description, total=total, task_id="main")
         yield tracker
         tracker.complete("main")
 

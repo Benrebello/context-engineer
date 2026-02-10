@@ -43,41 +43,48 @@ def test_intelligence_cache_levenshtein_mode(tmp_path, monkeypatch):
 
 def test_cli_init_declines_ai(monkeypatch):
     monkeypatch.setattr("cli.main.TRANSFORMERS_AVAILABLE", False, raising=False)
+    monkeypatch.setattr("cli.shared.TRANSFORMERS_AVAILABLE", False, raising=False)
+    monkeypatch.setattr("core.cache.TRANSFORMERS_AVAILABLE", False, raising=False)
     instances = []
     _create_dummy_engine(monkeypatch, instances)
 
     runner = CliRunner()
     with runner.isolated_filesystem():
+        # First "n" declines AI install, second "en-us" selects language
         result = runner.invoke(
             cli,
             ["init", "proj", "--output", "./workspace"],
-            input="n\n",
+            input="n\nen-us\n",
         )
 
     assert result.exit_code == 0
-    assert "modo 'levenshtein'" in result.output.lower()
+    assert "levenshtein" in result.output.lower()
     assert instances, "Engine was not instantiated"
     assert instances[0]["use_transformers"] is False
 
 
 def test_cli_init_accepts_ai_installs(monkeypatch):
     monkeypatch.setattr("cli.main.TRANSFORMERS_AVAILABLE", False, raising=False)
+    monkeypatch.setattr("cli.shared.TRANSFORMERS_AVAILABLE", False, raising=False)
+    monkeypatch.setattr("core.cache.TRANSFORMERS_AVAILABLE", False, raising=False)
     calls = {}
 
     def fake_install(cmd):
         calls["cmd"] = cmd
 
     monkeypatch.setattr("cli.main.subprocess.check_call", fake_install, raising=False)
+    monkeypatch.setattr("cli.shared.subprocess.check_call", fake_install, raising=False)
 
     runner = CliRunner()
     with runner.isolated_filesystem():
+        # First "y" accepts AI install, second "en-us" selects language
         result = runner.invoke(
             cli,
             ["init", "proj", "--output", "./workspace"],
-            input="y\n",
+            input="y\nen-us\n",
         )
 
     assert result.exit_code == 0
-    assert "sentence-transformers" in calls["cmd"]
-    assert "numpy" in calls["cmd"]
+    assert "sentence-transformers" in str(calls.get("cmd", ""))
+    assert "numpy" in str(calls.get("cmd", ""))
     assert "execute o comando novamente" in result.output.lower()

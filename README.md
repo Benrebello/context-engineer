@@ -8,24 +8,6 @@
 
 ---
 
-## ⚠️ Installation Notice / Aviso de Instalação
-
-**English:** This framework has not yet been published to PyPI. To install and create the `context-engineer.egg-info` package, you must clone the repository and install it in editable mode:
-```bash
-git clone https://github.com/Benrebello/context-engineer
-cd context-engineer
-uv pip install -e .
-```
-
-**Português:** Este framework ainda não foi publicado no PyPI. Para instalar e criar o pacote `context-engineer.egg-info`, você deve clonar o repositório e instalá-lo em modo editável:
-```bash
-git clone https://github.com/Benrebello/context-engineer
-cd context-engineer
-uv pip install -e .
-```
-
----
-
 ## English Reference
 
 ### Overview
@@ -34,7 +16,6 @@ uv pip install -e .
 - Works with AI copilots (semantic embeddings via `--ai`) or in lightweight mode (`--no-ai`), with governance handled by Soft-Gate Git hooks.
 
 ### Installation & Environment
-
 | Scenario | Command(s) |
 |----------|------------|
 | Fast path | `uv pip install context-engineer` (+ `"context-engineer[ai]"` for semantic search) |
@@ -63,6 +44,7 @@ uv pip install -e .
 - User Story fast-path: `docs/USER_STORY_QUICK_GUIDE.md` (bilingual navigation).
 - Multi-IDE / no-AI flow: `docs/MULTI_IDE_USAGE_GUIDE.md` (bilingual navigation).
 - AI Governance: `docs/AI_GOVERNANCE.md` (bilingual navigation).
+- **Complete Technical Overview:** [`docs/FRAMEWORK_OVERVIEW.md`](docs/FRAMEWORK_OVERVIEW.md) — architecture, pipeline, IDE integration, token economy, metrics.
 - Release checklist: `docs/MAIN_USAGE_GUIDE.md#release-checklist-pypi--github-actions`.
 
 ### Release Checklist (PyPI + GitHub Actions)
@@ -72,12 +54,6 @@ uv pip install -e .
 4. Refresh CI workflow: `ce ci-bootstrap --project-dir .` whenever governance policies change.
 5. Build & publish: `python -m build && twine upload dist/*`.
 6. Tag & push: `git tag vX.Y.Z && git push --tags`.
-
-
-
-
-
-
 
 ### Key Features
 
@@ -91,7 +67,6 @@ uv pip install -e .
 - Multi-stack support (Python/FastAPI, Go/Gin, Node/React, Vue3)
 - Automated tests (≥ 80% coverage requirement)
 
-
 ### Contributing
 
 1. Follow the rules in `GLOBAL_ENGINEERING_RULES.json`
@@ -101,7 +76,7 @@ uv pip install -e .
 
 ### License
 
-This project follows the guidelines of the original project.
+This project is licensed under the [MIT License](LICENSE).
 
 
 ---
@@ -114,7 +89,6 @@ This project follows the guidelines of the original project.
 - Funciona com copilots de IA (embeddings semânticos via `--ai`) ou em modo leve (`--no-ai`), com governança gerenciada por Git hooks Soft-Gate.
 
 ### Instalação e Ambiente
-
 | Cenário | Comando(s) |
 |---------|------------|
 | Caminho rápido | `uv pip install context-engineer` (+ `"context-engineer[ai]"` para busca semântica) |
@@ -125,7 +99,6 @@ This project follows the guidelines of the original project.
 ### Trilhas de Interação no Terminal
 | Trilha | Comando(s) | Propósito |
 |--------|------------|-----------|
-
 | Assistente conversacional | `ce assist --format text\|html --open` | Lê o estado do projeto, sugere padrões/entradas de cache e pode executar `ce init`, `ce generate-prd`, `ce generate-prps`, `ce generate-tasks`. |
 | Revisão / inspeção | `ce status`, `ce checklist` | Dashboards somente leitura para cerimônias de governança. |
 | Guiado / automação | `ce wizard`, `ce autopilot`, `ce ci-bootstrap` | Wizard confirma cada fase; Autopilot retoma pipelines sem supervisão; CI bootstrap integra `ce validate` + `ce report` no GitHub Actions. |
@@ -144,6 +117,7 @@ This project follows the guidelines of the original project.
 - Caminho rápido User Story: `docs/USER_STORY_QUICK_GUIDE.md` (navegação bilíngue).
 - Fluxo Multi-IDE / sem IA: `docs/MULTI_IDE_USAGE_GUIDE.md` (navegação bilíngue).
 - Governança de IA: `docs/AI_GOVERNANCE.md` (navegação bilíngue).
+- **Visão Técnica Completa:** [`docs/FRAMEWORK_OVERVIEW.md`](docs/FRAMEWORK_OVERVIEW.md) — arquitetura, pipeline, integração IDE, economia de tokens, métricas.
 - Checklist de release: `docs/MAIN_USAGE_GUIDE.md#release-checklist-pypi--github-actions`.
 
 ### Checklist de Release (PyPI + GitHub Actions)
@@ -153,11 +127,6 @@ This project follows the guidelines of the original project.
 4. Atualize o workflow de CI: `ce ci-bootstrap --project-dir .` sempre que as políticas de governança mudarem.
 5. Construa e publique: `python -m build && twine upload dist/*`.
 6. Versione e envie: `git tag vX.Y.Z && git push --tags`.
-
-
-
-
-
 
 ### Funcionalidades Principais
 
@@ -171,12 +140,6 @@ This project follows the guidelines of the original project.
 - Suporte multi-stack (Python/FastAPI, Go/Gin, Node/React, Vue3)
 - Testes automatizados (requisito de cobertura ≥ 80%)
 
-
-
-
-
-
-
 ### Contribuindo
 
 1. Siga as regras do `GLOBAL_ENGINEERING_RULES.json`
@@ -186,5 +149,5 @@ This project follows the guidelines of the original project.
 
 ### Licença
 
-Este projeto segue as diretrizes do projeto original.
+Este projeto é licenciado sob a [Licença MIT](LICENSE).
 

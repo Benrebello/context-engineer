@@ -44,9 +44,7 @@ class UserStoryRefiner:
         """Extract desired action"""
         description = fr.get("description", "")
         # Try to find action pattern
-        action_match = re.search(
-            r"(?:quero|preciso|desejo)\s+(.+?)(?:,|\.|para|de forma)", description, re.IGNORECASE
-        )
+        action_match = re.search(r"(?:quero|preciso|desejo)\s+(.+?)(?:,|\.|para|de forma)", description, re.IGNORECASE)
         if action_match:
             return action_match.group(1).strip()
         # Fallback to first sentence
@@ -96,9 +94,7 @@ class UserStoryRefiner:
     def _extract_given(self, criterion: str) -> str:
         """Extract Given clause from criterion"""
         # Look for Given patterns
-        given_match = re.search(
-            r"(?:dado|quando)\s+que\s+(.+?)(?:,|\.|quando)", criterion, re.IGNORECASE
-        )
+        given_match = re.search(r"(?:dado|quando)\s+que\s+(.+?)(?:,|\.|quando)", criterion, re.IGNORECASE)
         if given_match:
             return given_match.group(1).strip()
         return "o sistema está funcionando"
@@ -158,10 +154,7 @@ class TaskGenerator:
                 inputs.append(f"PRPs/{phase}.md")
 
         # Add specific inputs based on UserStory content
-        if (
-            "auth" in userstory.get("title", "").lower()
-            or "login" in userstory.get("title", "").lower()
-        ):
+        if "auth" in userstory.get("title", "").lower() or "login" in userstory.get("title", "").lower():
             inputs.append("PRPs/02_data_model.md")  # Need user model
             inputs.append("PRPs/08_security.md")  # Need security config
 

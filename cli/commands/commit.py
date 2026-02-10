@@ -42,9 +42,7 @@ def generate_commit_map(project_dir, output, git_range, include_uncommitted):
             click.echo(".git directory not found. Run 'git init' first.", err=True)
             raise click.Abort()
 
-        mapping = build_commit_mapping(
-            project_path, since=git_range, include_uncommitted=include_uncommitted
-        )
+        mapping = build_commit_mapping(project_path, since=git_range, include_uncommitted=include_uncommitted)
 
         output_path = Path(output)
         if not output_path.is_absolute():

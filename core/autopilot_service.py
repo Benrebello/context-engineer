@@ -103,9 +103,7 @@ class AutopilotService:
             )
             prd_structured = prd_output / "prd_structured.json"
             if not prd_structured.exists():
-                raise click.ClickException(
-                    "Não foi possível localizar prd_structured.json após geração do PRD."
-                )
+                raise click.ClickException("Não foi possível localizar prd_structured.json após geração do PRD.")
             current_prd_path = prd_structured
 
         if current_prd_path and not current_prps_path and not tasks_from_us:
@@ -158,9 +156,7 @@ class AutopilotService:
             )
             current_tasks_path = tasks_output
         elif not current_prps_path and not tasks_from_us and not current_tasks_path:
-            echo(
-                "\n[Autopilot] Nenhum PRP disponível e --tasks-from-us não foi fornecido. Etapa de Tasks pulada."
-            )
+            echo("\n[Autopilot] Nenhum PRP disponível e --tasks-from-us não foi fornecido. Etapa de Tasks pulada.")
 
         if not skip_validate:
             if current_prps_path and current_prps_path.exists():
@@ -181,9 +177,7 @@ class AutopilotService:
                     project_name=inferred_name,
                 )
             else:
-                echo(
-                    "\n[Autopilot] Nenhum PRP disponível para validação automática. Etapa de validação foi ignorada."
-                )
+                echo("\n[Autopilot] Nenhum PRP disponível para validação automática. Etapa de validação foi ignorada.")
 
         return {
             "project_path": project_path,

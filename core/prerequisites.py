@@ -5,7 +5,6 @@ Prerequisites validation system for Context Engineer commands.
 from __future__ import annotations
 
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -113,9 +112,7 @@ class PrerequisiteChecker:
 
         return False
 
-    def check_command_available(
-        self, command: str, raise_error: bool = True
-    ) -> bool:
+    def check_command_available(self, command: str, raise_error: bool = True) -> bool:
         """
         Check if a command is available in PATH.
 
@@ -140,9 +137,7 @@ class PrerequisiteChecker:
 
         return False
 
-    def check_python_package(
-        self, package: str, raise_error: bool = True
-    ) -> bool:
+    def check_python_package(self, package: str, raise_error: bool = True) -> bool:
         """
         Check if a Python package is installed.
 
@@ -167,9 +162,7 @@ class PrerequisiteChecker:
                 )
             return False
 
-    def check_disk_space(
-        self, required_mb: int = 100, raise_error: bool = True
-    ) -> bool:
+    def check_disk_space(self, required_mb: int = 100, raise_error: bool = True) -> bool:
         """
         Check if sufficient disk space is available.
 
@@ -185,6 +178,7 @@ class PrerequisiteChecker:
         """
         try:
             import shutil
+
             stat = shutil.disk_usage(self.project_dir)
             available_mb = stat.free / (1024 * 1024)
 
@@ -193,6 +187,7 @@ class PrerequisiteChecker:
 
             if raise_error:
                 from core.exceptions import ContextEngineerError
+
                 raise ContextEngineerError(
                     message=f"Insufficient disk space: {available_mb:.0f}MB available, {required_mb}MB required",
                     tip="Free up some disk space and try again",
@@ -225,6 +220,7 @@ class PrerequisiteChecker:
         except (PermissionError, OSError):
             if raise_error:
                 from core.exceptions import InsufficientPermissionsError
+
                 raise InsufficientPermissionsError(
                     path=str(self.project_dir),
                     operation="write to",
@@ -293,11 +289,13 @@ class PrerequisiteChecker:
 
                 results["checks_passed"].append(check_name)
             except Exception as e:
-                results["checks_failed"].append({
-                    "check": check_name,
-                    "description": description,
-                    "error": str(e),
-                })
+                results["checks_failed"].append(
+                    {
+                        "check": check_name,
+                        "description": description,
+                        "error": str(e),
+                    }
+                )
                 # Re-raise the first failure
                 raise
 

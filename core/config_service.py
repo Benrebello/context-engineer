@@ -52,5 +52,3 @@ class ProjectConfigService:
         existing.update(overrides)
         config_path.write_text(json.dumps(existing, indent=2, ensure_ascii=False), encoding="utf-8")
         return config_path
-
-

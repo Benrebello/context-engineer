@@ -29,9 +29,9 @@ class AIGovernanceService:
         }
         self.default_model = DEFAULT_EMBEDDING_MODEL
         self.policy_version_env_var = "AI_GOVERNANCE_POLICY_VERSION"
-        self._transformers_provider = transformers_available_provider or (  # pragma: no cover - fallback
+        self._transformers_provider = transformers_available_provider or (
             lambda: TRANSFORMERS_AVAILABLE
-        )
+        )  # pragma: no cover - fallback
         self.logger = LOGGING_SERVICE.get_logger(__name__)
 
     def normalize_embedding_model(self, alias: str | None) -> str | None:
@@ -77,9 +77,7 @@ class AIGovernanceService:
         policy_version_env = os.getenv(self.policy_version_env_var)
         if project_root and policy_version_env:
             if config.get("policy_version") != policy_version_env:
-                self.config_service.save_project_config(
-                    project_root, {"policy_version": policy_version_env}
-                )
+                self.config_service.save_project_config(project_root, {"policy_version": policy_version_env})
                 config["policy_version"] = policy_version_env
 
         stored_pref = config.get("use_transformers")

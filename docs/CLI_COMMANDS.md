@@ -17,6 +17,7 @@
 - [AI Governance Commands](#ai-governance-commands)
 - [DevOps Commands](#devops-commands)
 - [Marketplace Commands](#marketplace-commands)
+- [Provider Commands](#provider-commands)
 - [Status & Reporting Commands](#status--reporting-commands)
 - [Utility Commands](#utility-commands)
 - [Intelligence Modes](#intelligence-modes)
@@ -896,6 +897,169 @@ ce patterns suggest --project-dir ./my-api
 **Code References / Referências de Código:**
 - Implementation: `cli/commands/patterns.py` (lines 98-151)
 - Services: `core/engine.py` (`pattern_library`), `core/cache.py` (`search_similar`)
+
+---
+
+### Provider Commands
+
+#### `ce provider list` - List Providers / Listar Provedores
+
+Lists all supported LLM providers with their default models and configuration status (`cli/commands/provider.py`). / Lista todos os provedores LLM suportados com seus modelos padrão e status de configuração.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider list
+```
+
+**Examples / Exemplos:**
+```bash
+ce provider list
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Service: `core/llm_provider.py` (`LLMProviderService.list_providers`)
+
+---
+
+#### `ce provider setup` - Configure Provider / Configurar Provedor
+
+Interactively configure an LLM provider for the project, including API key storage and model selection (`cli/commands/provider.py`, `core/llm_provider.py`). / Configura interativamente um provedor LLM para o projeto, incluindo armazenamento de API key e seleção de modelo.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider setup [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `--provider-id TEXT` | Provider to configure (skip interactive selection). / Provedor a configurar. | interactive |
+| `--model TEXT` | Override the default model. The name must match the provider's API. / Modelo customizado. O nome deve ser idêntico ao da API do provedor. | provider default |
+| `--port INT` | Custom port for local providers (Ollama / LM Studio). / Porta customizada para provedores locais. | provider default |
+| `--project-dir PATH` | Project directory to save configuration. / Diretório do projeto. | `.` |
+
+**Examples / Exemplos:**
+```bash
+# Interactive setup
+ce provider setup
+
+# Direct setup with custom model
+ce provider setup --provider-id openai --model gpt-4-turbo
+
+# Local Ollama with custom port
+ce provider setup --provider-id local-ollama --model codellama:13b --port 11434
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Services: `core/llm_provider.py`, `core/config_service.py`
+
+---
+
+#### `ce provider set-model` - Set Custom Model / Definir Modelo Customizado
+
+Set or change the LLM model for a provider in the project configuration. The model name **must match exactly** what the provider's API expects (`cli/commands/provider.py`). / Define ou altera o modelo LLM de um provedor na configuração do projeto. O nome do modelo **deve ser idêntico** ao que a API do provedor espera.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider set-model PROVIDER_ID MODEL_NAME [OPTIONS]
+```
+
+| Argument / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `PROVIDER_ID` | Provider identifier (openai, gemini, anthropic, etc). / Identificador do provedor. | required |
+| `MODEL_NAME` | Model name as expected by the provider's API. / Nome do modelo conforme a API do provedor. | required |
+| `--project-dir PATH` | Project directory. / Diretório do projeto. | `.` |
+
+**Examples / Exemplos:**
+```bash
+# Set custom OpenAI model
+ce provider set-model openai gpt-4-turbo
+
+# Set Gemini model
+ce provider set-model gemini gemini-1.5-pro
+
+# Set Anthropic model
+ce provider set-model anthropic claude-opus-4-20250514
+
+# Set local Ollama model
+ce provider set-model local-ollama codellama:13b
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Service: `core/config_service.py`
+
+---
+
+#### `ce provider set-key` - Store API Key / Armazenar API Key
+
+Prompt for and securely store an encrypted API key for a provider (`cli/commands/provider.py`, `core/llm_provider.py`). / Solicita e armazena de forma criptografada uma API key para um provedor.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider set-key PROVIDER_ID
+```
+
+| Argument / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `PROVIDER_ID` | Provider identifier (only API providers). / Identificador do provedor (apenas provedores API). | required |
+
+**Examples / Exemplos:**
+```bash
+ce provider set-key openai
+ce provider set-key gemini
+ce provider set-key anthropic
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Service: `core/llm_provider.py` (`_CredentialVault`)
+
+---
+
+#### `ce provider remove-key` - Remove API Key / Remover API Key
+
+Remove a stored API key for a provider (`cli/commands/provider.py`). / Remove uma API key armazenada de um provedor.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider remove-key PROVIDER_ID
+```
+
+**Examples / Exemplos:**
+```bash
+ce provider remove-key openai
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Service: `core/llm_provider.py`
+
+---
+
+#### `ce provider show` - Show Configuration / Exibir Configuração
+
+Display the resolved LLM provider configuration for the project, including model (with custom indicator), API key status, and custom port (`cli/commands/provider.py`). / Exibe a configuração resolvida do provedor LLM do projeto, incluindo modelo (com indicador de customizado), status da API key e porta customizada.
+
+**Syntax / Sintaxe:**
+```bash
+ce provider show [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `--project-dir PATH` | Project directory. / Diretório do projeto. | `.` |
+
+**Examples / Exemplos:**
+```bash
+ce provider show
+ce provider show --project-dir ./my-project
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/provider.py`
+- Services: `core/llm_provider.py`, `core/config_service.py`
 
 ---
 

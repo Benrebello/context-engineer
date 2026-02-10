@@ -107,7 +107,6 @@ class ProjectStatusService:
         state = analyzer.analyze_project_state()
         assistant_context = analyzer.build_assistant_context()
         assistant_context["project_name"] = project_path.name
-        assistant_context["project_name"] = project_path.name
         metrics = analyzer.get_project_metrics()
 
         status_view = self._build_status_view(state, project_path.name)
@@ -118,9 +117,7 @@ class ProjectStatusService:
             try:
                 resolved_engine = self._resolve_engine(engine, enable_ai, embedding_model)
                 if resolved_engine:
-                    suggestions = self._build_suggestions(
-                        resolved_engine, assistant_context, pattern_context
-                    )
+                    suggestions = self._build_suggestions(resolved_engine, assistant_context, pattern_context)
             except Exception:
                 suggestions = {"patterns": [], "cache": []}
 
@@ -188,7 +185,7 @@ class ProjectStatusService:
         return {
             "project_path": project_path,
             "state": state,
-             "status_view": status_view,
+            "status_view": status_view,
             "assistant_context": assistant_context,
             "metrics": metrics,
             "pattern_suggestions": suggestions["patterns"],

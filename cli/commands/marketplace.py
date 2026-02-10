@@ -24,10 +24,7 @@ def marketplace_list():
 
     click.echo("\nAvailable items:\n")
     for item in catalog:
-        click.echo(
-            f"• {item.get('id')} - {item.get('name', 'Untitled')} "
-            f"({item.get('category', 'unknown category')})"
-        )
+        click.echo(f"• {item.get('id')} - {item.get('name', 'Untitled')} ({item.get('category', 'unknown category')})")
         if item.get("description"):
             click.echo(f"    {item['description']}")
         if item.get("stack"):
@@ -51,9 +48,7 @@ def marketplace_install(item_id, project_dir, destination):
     """Install a specific marketplace item into the project."""
     item = MARKETPLACE_SERVICE.find_item(item_id)
     if not item:
-        raise click.ClickException(
-            f"Item '{item_id}' not found. Run 'ce marketplace list' to see available IDs."
-        )
+        raise click.ClickException(f"Item '{item_id}' not found. Run 'ce marketplace list' to see available IDs.")
 
     project_path = Path(project_dir).resolve()
     try:

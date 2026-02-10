@@ -19,27 +19,42 @@ from cli.shared import (
 
 @click.command(help="5-minute quick guide to get started with Context Engineer")
 @click.option("--skip-intro", is_flag=True, help="Skip introduction and go straight to setup")
-@click.option("--interactive", "-i", is_flag=True, help="Full tutorial mode with detailed explanations (15 min)")
-@click.option("--example", type=click.Choice(["todo-app", "blog", "ecommerce", "api"]), help="Use pre-configured example project")
+@click.option(
+    "--interactive",
+    "-i",
+    is_flag=True,
+    help="Full tutorial mode with detailed explanations (15 min)",
+)
+@click.option(
+    "--example",
+    type=click.Choice(["todo-app", "blog", "ecommerce", "api"]),
+    help="Use pre-configured example project",
+)
 @hybrid_ai_option()
 @embedding_model_option()
-def quickstart(skip_intro: bool, interactive: bool, example: str | None, enable_ai: bool | None, embedding_model: str | None) -> None:
+def quickstart(
+    skip_intro: bool,
+    interactive: bool,
+    example: str | None,
+    enable_ai: bool | None,
+    embedding_model: str | None,
+) -> None:
     """Interactive quickstart guide for new users."""
-    from .generation import generate_prd, generate_prps, generate_tasks, init
+    from .generation import generate_prd, generate_prps, init
     from .status import status
 
     if not skip_intro:
         click.echo("\n" + "=" * 70)
         click.secho("CONTEXT ENGINEER - QUICKSTART", fg="cyan", bold=True)
         click.echo("=" * 70)
-        
+
         if interactive:
             click.echo("\nFull Tutorial Mode Activated!")
             click.echo("\nThis tutorial will guide you step by step, explaining each concept.")
             click.echo("Estimated time: ~15 minutes")
         else:
             click.echo("\nWelcome! This guide will set up your first project in 5 minutes.")
-        
+
         click.echo("\nWhat we'll do:")
         click.echo("  1. Create project structure")
         click.echo("  2. Generate PRD (Product Requirements Document)")
@@ -51,16 +66,16 @@ def quickstart(skip_intro: bool, interactive: bool, example: str | None, enable_
         else:
             click.echo("  4. View project status")
         click.echo("\nYou can interrupt at any time with Ctrl+C\n")
-        
+
         if interactive:
             click.echo("Tip: Use --example todo-app for a pre-configured example")
-        
+
         click.echo("=" * 70)
 
         if not click.confirm("\nReady to start?", default=True):
             echo_warning("Quickstart cancelled. Run 'ce quickstart' when ready.")
             return
-        
+
         if interactive:
             _show_concept_explanation("context_engineer")
 
@@ -214,7 +229,7 @@ def _show_concept_explanation(concept: str) -> None:
             "\nEach phase has clear objectives and automatic validation.\n"
         ),
     }
-    
+
     if concept in explanations:
         click.echo(explanations[concept])
         click.pause("\nPress Enter to continue...")
@@ -227,7 +242,12 @@ def _get_example_config(example_type: str) -> dict:
             "name": "todo-app",
             "stack": "python-fastapi",
             "idea": "Todo list application with JWT authentication and REST API",
-            "features": ["Create tasks", "Mark as completed", "Filter by status", "User authentication"],
+            "features": [
+                "Create tasks",
+                "Mark as completed",
+                "Filter by status",
+                "User authentication",
+            ],
         },
         "blog": {
             "name": "blog-platform",

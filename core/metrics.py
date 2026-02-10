@@ -150,9 +150,7 @@ class MetricsCollector:
             metrics.failed_phase_generations += 1
 
         if metrics.total_phase_generations > 0:
-            metrics.phase_failure_rate = (
-                metrics.failed_phase_generations / metrics.total_phase_generations
-            ) * 100
+            metrics.phase_failure_rate = (metrics.failed_phase_generations / metrics.total_phase_generations) * 100
 
         metrics.updated_at = datetime.now(UTC).isoformat()
         self.save_metrics(metrics)
@@ -168,7 +166,9 @@ class MetricsCollector:
         """
         metrics = self.load_metrics(project_name)
         metrics.completed_tasks += 1 if success else 0
-        metrics.task_completion_rate = (metrics.completed_tasks / metrics.total_tasks * 100) if metrics.total_tasks > 0 else 0.0
+        metrics.task_completion_rate = (
+            (metrics.completed_tasks / metrics.total_tasks * 100) if metrics.total_tasks > 0 else 0.0
+        )
         metrics.updated_at = datetime.now(UTC).isoformat()
         self.save_metrics(metrics)
 
@@ -311,17 +311,16 @@ class MetricsCollector:
             return {}
 
         return {
-            "avg_prp_generation_time": sum(m.prp_generation_time_minutes for m in all_metrics)
-            / len(all_metrics),
-            "avg_task_completion_rate": sum(m.task_completion_rate for m in all_metrics)
-            / len(all_metrics),
-            "avg_test_coverage": sum(m.test_coverage_achieved for m in all_metrics)
-            / len(all_metrics),
+            "avg_prp_generation_time": sum(m.prp_generation_time_minutes for m in all_metrics) / len(all_metrics),
+            "avg_task_completion_rate": sum(m.task_completion_rate for m in all_metrics) / len(all_metrics),
+            "avg_test_coverage": sum(m.test_coverage_achieved for m in all_metrics) / len(all_metrics),
             "avg_code_quality": sum(m.code_quality_score for m in all_metrics) / len(all_metrics),
             "total_projects": len(all_metrics),
         }
 
-    def record_context_pruning(self, project_name: str, tokens_saved: int, cost_saved: float, tokens_used: int = 0) -> None:
+    def record_context_pruning(
+        self, project_name: str, tokens_saved: int, cost_saved: float, tokens_used: int = 0
+    ) -> None:
         """
         Record Context Pruning event for ROI tracking
 
@@ -373,9 +372,7 @@ class MetricsCollector:
                 "context_pruning_events": 0,
             }
 
-        savings_percentage = (
-            (metrics.tokens_saved / metrics.tokens_used * 100) if metrics.tokens_used > 0 else 0.0
-        )
+        savings_percentage = (metrics.tokens_saved / metrics.tokens_used * 100) if metrics.tokens_used > 0 else 0.0
 
         return {
             "tokens_saved": metrics.tokens_saved,

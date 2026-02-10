@@ -21,11 +21,12 @@
 ### Flow Cheatsheet
 0. **Prompt sync**: run `ce ide sync --project-dir .` (fallback: copy `IDE-rules` → `.{name of your ide)/`) so `@` references resolve to the latest prompts/workflows.
 1. **Setup**: configure `GLOBAL_ENGINEERING_RULES.json` and `PROJECT_STANDARDS.md`.
-2. **PRD generation**: `@Agente_PRD_360.md` → outputs `PRD.md` + `prd_structured.json`.
-3. **PRPs**: `@Agente_PRP_Orquestrador.md` referencing the structured PRD → outputs `PRPs/`, `TASKs/`, `execution_map.md`.
-4. **Tasks**: `@TASKs/TASK.FR-001.md` or `ce generate-tasks`.
-5. **Patterns & marketplace**: `ce patterns list/show/suggest`, `ce marketplace install`.
-6. **Traceability validation**: `ce validate prps/ --prd-file ... --tasks-dir ... --commits-json ...`.
+2. **LLM Provider**: `ce provider setup` to configure provider and model. Use `ce provider set-model <provider> <model>` to set a custom model (name must match the provider's API).
+3. **PRD generation**: `@Agente_PRD_360.md` → outputs `PRD.md` + `prd_structured.json`.
+4. **PRPs**: `@Agente_PRP_Orquestrador.md` referencing the structured PRD → outputs `PRPs/`, `TASKs/`, `execution_map.md`.
+5. **Tasks**: `@TASKs/TASK.FR-001.md` or `ce generate-tasks`.
+6. **Patterns & marketplace**: `ce patterns list/show/suggest`, `ce marketplace install`.
+7. **Traceability validation**: `ce validate prps/ --prd-file ... --tasks-dir ... --commits-json ...`.
 
 ### Assets
 - Diagram (Mermaid + PNG): `docs/assets/context_engineer_flow.mmd` / `context_engineer_flow.png`.

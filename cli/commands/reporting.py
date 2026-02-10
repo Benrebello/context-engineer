@@ -69,7 +69,9 @@ def report(project_name, stack, format, output):
                 output_path.write_text(html_content, encoding="utf-8")
                 click.echo(f"[OK] Dashboard saved to {output_path}")
             else:
-                click.echo(reporting_service.render_project_dashboard_html(project_name, metrics, analysis, roi_metrics))
+                click.echo(
+                    reporting_service.render_project_dashboard_html(project_name, metrics, analysis, roi_metrics)
+                )
             return
 
         all_metrics, avg_metrics = reporting_service.load_global_metrics(stack_filter=stack)
@@ -162,9 +164,7 @@ def metrics_summary(project_name, tasks_dir):
                 stack = "python-fastapi"
                 if (tasks_path.parent / "package.json").exists():
                     stack = "node-react"
-                elif (tasks_path.parent / "vite.config.js").exists() or (
-                    tasks_path.parent / "vite.config.ts"
-                ).exists():
+                elif (tasks_path.parent / "vite.config.js").exists() or (tasks_path.parent / "vite.config.ts").exists():
                     stack = "vue3"
                 for task_file in task_files[:10]:
                     try:
@@ -249,7 +249,7 @@ def ai_status(project_dir, embedding_model):
     click.echo("  • ce init --ai            # force AI mode")
     click.echo("  • ce init --no-ai         # force lightweight mode")
     click.echo("  • ce <cmd> --embedding-model bge-small-en-v1.5")
-    click.echo("  • pip install \"context-engineer[ai]\"")
+    click.echo('  • pip install "context-engineer[ai]"')
     click.echo("=" * 70 + "\n")
 
 

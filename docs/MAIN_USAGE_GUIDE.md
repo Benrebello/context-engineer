@@ -25,10 +25,11 @@
 
 ### Step-by-step (Full Flow)
 1. **Step 0 – Setup**: run `ce ide sync --project-dir .` (fallback: copy `IDE-rules` → `.ide-rules`), configure rules/stack, ensure Python 3.11+ available.
-2. **Step 1 – Generate PRD**: in IDE run `@Agente_PRD_360.md` with your product idea; outputs `PRD.md` + structured JSON.
-3. **Step 2 – Generate PRPs**: run `@Agente_PRP_Orquestrador.md` referencing `prd_structured.json`; produces `PRPs/`, `TASKs/`, `execution_map.md`.
-4. **Step 3 – Generate Tasks**: execute `@TASKs/TASK.FR-001.md` or `ce generate-tasks`; each task ships with instructions, code skeleton and tests.
-5. **Validation & Metrics**: `ce validate`, `ce report`, `ce checklist`, `ce doctor`, `ce ai-governance status`, plus Git hooks for Soft-Gate governance.
+2. **Step 0.5 – LLM Provider**: run `ce provider setup` to configure your LLM provider and model. Use `ce provider set-model <provider> <model>` to set a custom model (the name must match exactly what the provider's API expects).
+3. **Step 1 – Generate PRD**: in IDE run `@Agente_PRD_360.md` with your product idea; outputs `PRD.md` + structured JSON.
+4. **Step 2 – Generate PRPs**: run `@Agente_PRP_Orquestrador.md` referencing `prd_structured.json`; produces `PRPs/`, `TASKs/`, `execution_map.md`.
+5. **Step 3 – Generate Tasks**: execute `@TASKs/TASK.FR-001.md` or `ce generate-tasks`; each task ships with instructions, code skeleton and tests.
+6. **Validation & Metrics**: `ce validate`, `ce report`, `ce checklist`, `ce doctor`, `ce ai-governance status`, plus Git hooks for Soft-Gate governance.
 
 ### Simplified flow (User Story direct)
 - Use `@Agente_Task_Direto.md` with persona/action/value plus Gherkin acceptance criteria.
@@ -239,11 +240,25 @@ Edite `.ide-rules/prompts/PROJECT_STANDARDS.md`:
 - Arquitetura: Clean Architecture (domain/app/infra/interfaces)
 ```
 
+#### 4. Configurar Provedor LLM
+
+```bash
+# Setup interativo (recomendado)
+ce provider setup
+
+# Ou definir modelo customizado diretamente
+ce provider set-model openai gpt-4-turbo
+ce provider set-model local-ollama codellama:13b
+```
+
+> **Importante:** O nome do modelo deve ser idêntico ao identificador usado pela API do provedor. Consulte a documentação do provedor para nomes de modelos disponíveis.
+
 #### Checklist Passo 0:
 - [ ] `.ide-rules/` sincronizada via `ce ide sync` (ou cópia manual)
 - [ ] `GLOBAL_ENGINEERING_RULES.json` configurado
 - [ ] `PROJECT_STANDARDS.md` definido
 - [ ] Stack tecnológica escolhida
+- [ ] Provedor LLM configurado via `ce provider setup`
 
 ---
 

@@ -13,8 +13,16 @@ def explore(category: str | None) -> None:
         "🎯 Geração": {
             "description": "Comandos para gerar artefatos do projeto",
             "commands": [
-                ("init", "Inicializar projeto com estrutura e templates", "ce init my-project --stack python-fastapi"),
-                ("generate-prd", "Gerar PRD a partir de uma ideia", "ce generate-prd --interactive"),
+                (
+                    "init",
+                    "Inicializar projeto com estrutura e templates",
+                    "ce init my-project --stack python-fastapi",
+                ),
+                (
+                    "generate-prd",
+                    "Gerar PRD a partir de uma ideia",
+                    "ce generate-prd --interactive",
+                ),
                 ("generate-prps", "Gerar PRPs (fases) a partir do PRD", "ce generate-prps"),
                 ("generate-tasks", "Gerar tasks executáveis", "ce generate-tasks"),
             ],
@@ -26,7 +34,11 @@ def explore(category: str | None) -> None:
                 ("validate", "Validar PRD, PRPs e Tasks", "ce validate --check-traceability"),
                 ("doctor", "Diagnóstico completo do projeto", "ce doctor --fix"),
                 ("checklist", "Checklist interativo de progresso", "ce checklist"),
-                ("check-dependencies", "Verificar dependências do projeto", "ce check-dependencies"),
+                (
+                    "check-dependencies",
+                    "Verificar dependências do projeto",
+                    "ce check-dependencies",
+                ),
             ],
             "aliases": "Aliases: v (validate), c (checklist)",
         },

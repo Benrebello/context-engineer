@@ -1,0 +1,41 @@
+{
+  "project_name": "test-proj",
+  "prp_generation_time_minutes": 0.0,
+  "total_phase_generations": 136,
+  "failed_phase_generations": 0,
+  "phase_failure_rate": 0.0,
+  "task_completion_rate": 0.0,
+  "test_coverage_achieved": 0.0,
+  "code_quality_score": 0.0,
+  "rework_rate": 0.0,
+  "total_tasks": 0,
+  "completed_tasks": 0,
+  "created_at": "2026-02-09T17:45:36.920532+00:00",
+  "updated_at": "2026-02-10T12:49:45.361890+00:00",
+  "category_rework_rates": {},
+  "tokens_saved": 0,
+  "tokens_used": 0,
+  "context_pruning_events": 0,
+  "estimated_cost_saved_usd": 0.0,
+  "tasks_with_commits": 0,
+  "traceability_gaps": 0,
+  "last_traceability_check": "",
+  "phase_generation_stats": {
+    "F0": {
+      "runs": 68,
+      "failures": 0,
+      "total_time_seconds": 0.3268401590103167,
+      "avg_time_seconds": 0.004806472926622305,
+      "failure_rate": 0.0,
+      "last_error": ""
+    },
+    "F1": {
+      "runs": 68,
+      "failures": 0,
+      "total_time_seconds": 0.7227771500038216,
+      "avg_time_seconds": 0.010629075735350317,
+      "failure_rate": 0.0,
+      "last_error": ""
+    }
+  }
+}

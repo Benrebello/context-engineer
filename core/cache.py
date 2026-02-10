@@ -3,6 +3,8 @@ Intelligence Cache for learning from previous projects
 Enhanced with semantic search using embeddings and SQLite storage
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import logging
@@ -15,6 +17,7 @@ from typing import Any
 
 try:
     import numpy as np
+
     NUMPY_AVAILABLE = True
 except ImportError:  # pragma: no cover - optional dependency
     np = None  # type: ignore
@@ -22,6 +25,7 @@ except ImportError:  # pragma: no cover - optional dependency
 
 try:
     from sentence_transformers import SentenceTransformer
+
     TRANSFORMERS_AVAILABLE = True
 except ImportError:  # pragma: no cover - optional dependency
     SentenceTransformer = None  # type: ignore
@@ -77,9 +81,7 @@ class IntelligenceCache:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.force_no_ia = force_no_ia
         self.selected_model = model_name or DEFAULT_EMBEDDING_MODEL
-        self.use_transformers = (
-            use_transformers and TRANSFORMERS_AVAILABLE and not force_no_ia
-        )
+        self.use_transformers = use_transformers and TRANSFORMERS_AVAILABLE and not force_no_ia
 
         # Initialize SQLite database
         self.db_path = self.cache_dir / "intelligence_cache.db"
@@ -118,7 +120,8 @@ class IntelligenceCache:
         """Initialize SQLite database with optimized schema and indices for project-specific data"""
         with sqlite3.connect(self.db_path) as conn:
             # Patterns table - reusable code patterns
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS patterns (
                     pattern_id TEXT PRIMARY KEY,
                     code TEXT NOT NULL,
@@ -131,10 +134,12 @@ class IntelligenceCache:
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Embeddings table - semantic vectors for RAG
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS embeddings (
                     cache_key TEXT PRIMARY KEY,
                     text_hash TEXT NOT NULL,
@@ -142,10 +147,12 @@ class IntelligenceCache:
                     dimension INTEGER NOT NULL,
                     cached_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Metrics table - project metrics and KPIs
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     metric_type TEXT NOT NULL,
@@ -154,10 +161,12 @@ class IntelligenceCache:
                     metadata TEXT,
                     recorded_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Token usage table - track token consumption per operation
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS token_usage (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     operation TEXT NOT NULL,
@@ -168,10 +177,12 @@ class IntelligenceCache:
                     model TEXT,
                     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Prompt history table - track prompts and responses for improvement
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS prompt_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     prompt_type TEXT NOT NULL,
@@ -183,10 +194,12 @@ class IntelligenceCache:
                     metadata TEXT,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Validations table - track validation results
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS validations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     validation_type TEXT NOT NULL,
@@ -196,7 +209,8 @@ class IntelligenceCache:
                     warnings TEXT,
                     validated_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Create indices for fast lookups
             conn.execute("CREATE INDEX IF NOT EXISTS idx_patterns_hash ON patterns(context_hash)")
@@ -205,8 +219,12 @@ class IntelligenceCache:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_embeddings_hash ON embeddings(text_hash)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_metrics_type ON metrics(metric_type, recorded_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_token_usage_operation ON token_usage(operation, timestamp)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_prompt_history_type ON prompt_history(prompt_type, created_at)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_validations_type ON validations(validation_type, validated_at)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_prompt_history_type ON prompt_history(prompt_type, created_at)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_validations_type ON validations(validation_type, validated_at)"
+            )
 
             logger.info("Project-specific SQLite database initialized at %s", self.db_path)
 
@@ -245,7 +263,7 @@ class IntelligenceCache:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.execute(
                     "SELECT embedding, dimension FROM embeddings WHERE cache_key = ? AND text_hash = ?",
-                    (cache_key, text_hash)
+                    (cache_key, text_hash),
                 )
                 row = cursor.fetchone()
                 if row:
@@ -268,8 +286,13 @@ class IntelligenceCache:
                         """INSERT OR REPLACE INTO embeddings 
                            (cache_key, text_hash, embedding, dimension, cached_at)
                            VALUES (?, ?, ?, ?, ?)""",
-                        (cache_key, text_hash, embedding_blob, len(embedding_list),
-                         datetime.now().isoformat())
+                        (
+                            cache_key,
+                            text_hash,
+                            embedding_blob,
+                            len(embedding_list),
+                            datetime.now().isoformat(),
+                        ),
                     )
                     conn.commit()
             except Exception as e:
@@ -334,9 +357,7 @@ class IntelligenceCache:
         if self.use_transformers and pattern.context_vector is None:
             context_text = self._create_context_text(pattern.metadata)
             if context_text:
-                pattern.context_vector = self._generate_embedding(
-                    context_text, cache_key=pattern.pattern_id
-                )
+                pattern.context_vector = self._generate_embedding(context_text, cache_key=pattern.pattern_id)
 
         pattern.last_used = datetime.now().isoformat()
 
@@ -356,8 +377,8 @@ class IntelligenceCache:
                         pattern.usage_count,
                         pattern.last_used,
                         json.dumps(pattern.tags or []),
-                        datetime.now().isoformat()
-                    )
+                        datetime.now().isoformat(),
+                    ),
                 )
                 conn.commit()
         except Exception as e:
@@ -379,7 +400,7 @@ class IntelligenceCache:
                     """SELECT pattern_id, code, metadata, context_hash, success_rate,
                               usage_count, last_used, tags
                        FROM patterns WHERE pattern_id = ?""",
-                    (pattern_id,)
+                    (pattern_id,),
                 )
                 row = cursor.fetchone()
                 if row:
@@ -391,7 +412,7 @@ class IntelligenceCache:
                         success_rate=row[4],
                         usage_count=row[5],
                         last_used=row[6],
-                        tags=json.loads(row[7]) if row[7] else []
+                        tags=json.loads(row[7]) if row[7] else [],
                     )
         except Exception as e:
             logger.error("Error loading pattern %s: %s", pattern_id, e)
@@ -426,9 +447,7 @@ class IntelligenceCache:
     def _vector_search(self, context: dict, context_text: str) -> list[tuple[float, CodePattern]]:
         """Execute semantic vector search when transformers are enabled using SQLite."""
         query_hash = self._hash_context(context)
-        query_vector = np.array(
-            self._generate_embedding(context_text, cache_key=f"query_{query_hash}")
-        )
+        query_vector = np.array(self._generate_embedding(context_text, cache_key=f"query_{query_hash}"))
         if query_vector.size == 0:
             return []
 
@@ -454,7 +473,7 @@ class IntelligenceCache:
                         success_rate=row[4],
                         usage_count=row[5],
                         last_used=row[6],
-                        tags=json.loads(row[7]) if row[7] else []
+                        tags=json.loads(row[7]) if row[7] else [],
                     )
 
                     if row[8]:  # Has embedding
@@ -502,7 +521,7 @@ class IntelligenceCache:
                         success_rate=row[4],
                         usage_count=row[5],
                         last_used=row[6],
-                        tags=json.loads(row[7]) if row[7] else []
+                        tags=json.loads(row[7]) if row[7] else [],
                     )
 
                     pattern_text = self._create_context_text(pattern.metadata) or ""
@@ -556,7 +575,7 @@ class IntelligenceCache:
                 # Get current values
                 cursor = conn.execute(
                     "SELECT success_rate, usage_count FROM patterns WHERE pattern_id = ?",
-                    (pattern_id,)
+                    (pattern_id,),
                 )
                 row = cursor.fetchone()
                 if not row:
@@ -578,9 +597,14 @@ class IntelligenceCache:
                     """UPDATE patterns 
                        SET success_rate = ?, usage_count = ?, last_used = ?, updated_at = ?
                        WHERE pattern_id = ?""",
-                     (new_rate, new_usage_count, datetime.now(UTC).isoformat(),
-                      datetime.now(UTC).isoformat(), pattern_id)
-                 )
+                    (
+                        new_rate,
+                        new_usage_count,
+                        datetime.now(UTC).isoformat(),
+                        datetime.now(UTC).isoformat(),
+                        pattern_id,
+                    ),
+                )
                 conn.commit()
         except Exception as e:
             logger.error("Error updating success rate for %s: %s", pattern_id, e)
@@ -604,20 +628,22 @@ class IntelligenceCache:
                        FROM patterns
                        ORDER BY success_rate DESC, usage_count DESC
                        LIMIT ?""",
-                    (limit,)
+                    (limit,),
                 )
 
                 for row in cursor:
-                    patterns.append(CodePattern(
-                        pattern_id=row[0],
-                        code=row[1],
-                        metadata=json.loads(row[2]),
-                        context_hash=row[3],
-                        success_rate=row[4],
-                        usage_count=row[5],
-                        last_used=row[6],
-                        tags=json.loads(row[7]) if row[7] else []
-                    ))
+                    patterns.append(
+                        CodePattern(
+                            pattern_id=row[0],
+                            code=row[1],
+                            metadata=json.loads(row[2]),
+                            context_hash=row[3],
+                            success_rate=row[4],
+                            usage_count=row[5],
+                            last_used=row[6],
+                            tags=json.loads(row[7]) if row[7] else [],
+                        )
+                    )
         except Exception as e:
             logger.error("Error getting top patterns: %s", e)
 
@@ -688,7 +714,13 @@ class IntelligenceCache:
                     }
         except Exception as e:
             logger.warning("Could not get token usage stats: %s", e)
-        return {"count": 0, "total_input": 0, "total_output": 0, "total_saved": 0, "total_cost": 0.0}
+        return {
+            "count": 0,
+            "total_input": 0,
+            "total_output": 0,
+            "total_saved": 0,
+            "total_cost": 0.0,
+        }
 
     def record_validation(
         self,
@@ -719,7 +751,9 @@ class IntelligenceCache:
         except Exception as e:
             logger.warning("Could not record validation: %s", e)
 
-    def record_metric(self, metric_type: str, metric_name: str, metric_value: float, metadata: dict | None = None) -> None:
+    def record_metric(
+        self, metric_type: str, metric_name: str, metric_value: float, metadata: dict | None = None
+    ) -> None:
         """Record a project metric"""
         try:
             with sqlite3.connect(self.db_path) as conn:

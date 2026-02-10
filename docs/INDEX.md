@@ -19,9 +19,10 @@
 
 ### Documentação Técnica:
 
-4. **[PRP_BUSINESS_RULES.md](PRP_BUSINESS_RULES.md)** - Regras detalhadas dos PRPs e Context Engineering *(bilingual navigation)*
-5. **[IDE_EXAMPLES.md](IDE_EXAMPLES.md)** - Exemplos práticos por domínio (E-commerce, Hospitalar, etc.)
-6. **[MULTI_IDE_USAGE_GUIDE.md](MULTI_IDE_USAGE_GUIDE.md)** - Uso em outras IDEs e sem IA *(bilingual navigation)*
+5. **[FRAMEWORK_OVERVIEW.md](FRAMEWORK_OVERVIEW.md)** - **COMPLETO** - Visão técnica completa do framework (arquitetura, pipeline, IDE, tokens, métricas)
+6. **[PRP_BUSINESS_RULES.md](PRP_BUSINESS_RULES.md)** - Regras detalhadas dos PRPs e Context Engineering *(bilingual navigation)*
+7. **[CURSOR_EXAMPLES.md](CURSOR_EXAMPLES.md)** - Exemplos práticos por domínio (E-commerce, Hospitalar, etc.)
+8. **[MULTI_IDE_USAGE_GUIDE.md](MULTI_IDE_USAGE_GUIDE.md)** - Uso em outras IDEs e sem IA *(bilingual navigation)*
 
 ---
 
@@ -39,6 +40,7 @@
 | MULTI_IDE_USAGE_GUIDE.md | Uso em múltiplas IDEs / Multi-IDE usage | `ce ide sync`, `ce assist`, `ce wizard` | `cli/commands/ide.py`, `cli/commands/status.py` |
 | MARKETPLACE.md | Instalação de aceleradores / Installing accelerators | `ce marketplace list`, `ce marketplace install` | `cli/commands/marketplace.py`, `core/marketplace_service.py` |
 | NEW_STACK_ONBOARDING_GUIDE.md | Criação de novas stacks / Adding new stacks | `ce init --stack`, `ce ide sync` | `stacks/*.yaml`, `cli/commands/generation.py` (`init`) |
+| SETUP.md | Configuração de ambiente e LLM / Environment and LLM setup | `ce provider setup`, `ce provider set-model` | `cli/commands/provider.py`, `core/llm_provider.py` |
 | DASHBOARD.md | Relatórios e dashboards / Reports and dashboards | `ce report`, `ce metrics-summary`, `ce ai-status` | `cli/commands/reporting.py`, `core/reporting_service.py`, `templates/reporting/*.j2` |
 
 > **Como usar / How to use:** Localize rapidamente o documento certo, execute os comandos indicados e abra os módulos Python correspondentes para entender ou estender o comportamento.
@@ -87,11 +89,23 @@
 | `ce patterns show` | `<pattern_id>` | `core/engine.py` (`pattern_library`) | `cli/commands/patterns.py` |
 | `ce patterns suggest` | `--project-dir`, `--ai/--no-ai`, `--embedding-model` | `core/engine.py` (`pattern_library`), `core/cache.py` | `cli/commands/patterns.py` |
 
+### Comandos de Provedor LLM
+
+| Comando | Flags Principais | Serviço Core | Arquivo CLI |
+|---------|------------------|--------------|-------------|
+| `ce provider list` | — | `core/llm_provider.py` | `cli/commands/provider.py` |
+| `ce provider setup` | `--provider-id`, `--model`, `--port`, `--project-dir` | `core/llm_provider.py`, `core/config_service.py` | `cli/commands/provider.py` |
+| `ce provider set-model` | `<provider_id>`, `<model_name>`, `--project-dir` | `core/config_service.py` | `cli/commands/provider.py` |
+| `ce provider set-key` | `<provider_id>` | `core/llm_provider.py` | `cli/commands/provider.py` |
+| `ce provider remove-key` | `<provider_id>` | `core/llm_provider.py` | `cli/commands/provider.py` |
+| `ce provider show` | `--project-dir` | `core/llm_provider.py`, `core/config_service.py` | `cli/commands/provider.py` |
+
 ### Comandos DevOps e Utilidades
 
 | Comando | Flags Principais | Serviço Core | Arquivo CLI |
 |---------|------------------|--------------|-------------|
 | `ce install-hooks` | `--project-dir`, `--hard-gate` | `core/git_service.py` (`GitHookManager`) | `cli/commands/devops.py` |
+| `ce git-setup` | `--project-dir` | `core/git_service.py` | `cli/commands/devops.py` |
 | `ce ci-bootstrap` | `--project-dir`, `--platform` | `core/git_service.py` | `cli/commands/devops.py` |
 | `ce ide sync` | `--project-dir` | N/A (copia arquivos) | `cli/commands/ide.py` |
 | `ce alias` | `<subcommand>` | N/A (gerencia aliases) | `cli/commands/alias.py` |
@@ -174,16 +188,16 @@ Execute a task descrita acima.
 ### **Desenvolvedor**:
 1. MAIN_USAGE_GUIDE.md (Passo 3) *(bilingual)*
 2. QUICK_REFERENCE.md *(bilingual)*
-3. IDE_EXAMPLES.md *(bilingual header)*
+3. CURSOR_EXAMPLES.md
 
 ### **Arquiteto**:
 1. PRP_BUSINESS_RULES.md *(bilingual)*
 2. MAIN_USAGE_GUIDE.md (Passo 2) *(bilingual)*
-3. IDE_EXAMPLES.md *(bilingual header)*
+3. CURSOR_EXAMPLES.md
 
 ### **Product Manager**:
 1. MAIN_USAGE_GUIDE.md (Passo 1) *(bilingual)*
-2. IDE_EXAMPLES.md *(bilingual header)*
+2. CURSOR_EXAMPLES.md
 3. PRP_BUSINESS_RULES.md *(bilingual)*
 
 ---
@@ -207,7 +221,7 @@ Execute a task descrita acima.
 ### **Implementação**:
 - MAIN_USAGE_GUIDE.md (Passo 3)
 - QUICK_REFERENCE.md
-- IDE_EXAMPLES.md
+- CURSOR_EXAMPLES.md
 
 ### **Comandos e Referência**:
 - QUICK_REFERENCE.md
@@ -215,14 +229,12 @@ Execute a task descrita acima.
 
 ---
 
-## Documentos de Análise (Opcional)
+## Documentos Complementares
 
-Documentos técnicos sobre implementação e melhorias estão em:
-- `docs/analise/` - Análises técnicas e implementações
-- `docs/MELHORIAS_NIVEL_SENIOR.md` - Melhorias de nível sênior (Context Pruning, Deep Cross-Validation)
-- `docs/REFINAMENTOS_FINAIS.md` - Refinamentos DevOps (Git Hooks, Mock Server, Confidence Adjustment)
 - `docs/NEW_STACK_ONBOARDING_GUIDE.md` - Como adicionar sua própria stack
 - `docs/AI_GOVERNANCE.md` - Sistema de Governança de IA (Soft-Gate, ROI Tracking)
+- `docs/MARKETPLACE.md` - Catálogo de aceleradores e padrões
+- `docs/DASHBOARD.md` - Relatórios e dashboards de métricas
 
 ---
 
@@ -288,8 +300,8 @@ ce patterns suggest --project-dir .
 - [ ] NEW_STACK_ONBOARDING_GUIDE.md (bilingual) – adicionar stacks customizadas
 
 ### Documentação Técnica Avançada
-- [ ] MELHORIAS_NIVEL_SENIOR.md – Context Pruning, Deep Cross-Validation
-- [ ] REFINAMENTOS_FINAIS.md – Git Hooks, Mock Server, Confidence Adjustment
+- [ ] CURSOR_EXAMPLES.md – Exemplos práticos por domínio
+- [ ] DASHBOARD.md – Métricas e relatórios de eficiência
 
 ---
 

@@ -1,32 +1,133 @@
-%% Context Engineer functional flow and correlations
+%% Context Engineer — functional flow and component correlations
+%% Reflects project structure as of v1.0.0
 flowchart TD
-    A[Idea Intake<br/>Product Vision] -->|IDE Prompt @Agente_PRD_360| B[PRD Generation<br/>ce generate-prd]
-    B -->|Structured Requirements| C[PRP Planning<br/>ce generate-prps]
-    C -->|Phase Guides F0-F11| D[Task Authoring<br/>ce generate-tasks]
-    D -->|Executable Tasks| E[Implementation & Tests<br/>Developers + IDE]
-    E -->|Artifacts + Commits| F[Validation & Governance<br/>ce validate • Git Hooks]
-    F -->|Metrics Snapshot| G[Metrics & Dashboards<br/>ce status • ce report]
 
+    %% ── Main Pipeline ──────────────────────────────────────────────
+    A[Idea Intake<br/>Product Vision] -->|"IDE @Agente_PRD_360 / ce generate-prd"| B[PRD Generation<br/>PRD.md + prd_structured.json]
+    B -->|"IDE @Agente_PRP / ce generate-prps"| C[PRP Planning<br/>Phases F0–F9]
+    C -->|"IDE @Agente_Task / ce generate-tasks"| D[Task Authoring<br/>TASK.FR-xxx.md/.json]
+    D -->|Executable Tasks| E[Implementation & Tests<br/>Developers + IDE AI]
+    E -->|Artifacts + Commits| F[Validation & Governance<br/>ce validate • Git Hooks]
+    F -->|Metrics Snapshot| G[Metrics & Dashboards<br/>ce report • ce status]
+
+    %% ── Core Engine ────────────────────────────────────────────────
+    subgraph Core Engine — core/engine.py
+        ENG[ContextEngine<br/>Orchestrator]
+        TPL[TemplateEngine<br/>Jinja2 Templates]
+        PAT[PatternLibrary<br/>Reusable Patterns]
+        STK[StackPluginManager<br/>YAML Stack Plugins]
+        VAL[PRPValidator<br/>Cross-Validation]
+        EST[EffortEstimator<br/>Story Points + Confidence Adj.]
+        ENG --> TPL
+        ENG --> PAT
+        ENG --> STK
+        ENG --> VAL
+        ENG --> EST
+    end
+
+    B --> ENG
+    C --> ENG
+    D --> ENG
+    F --> VAL
+
+    %% ── Intelligence Layer ─────────────────────────────────────────
+    subgraph Intelligence Layer — core/cache.py
+        CACHE[IntelligenceCache<br/>SQLite + Embeddings]
+        EMB[Embedding Cache<br/>Binary np.float32]
+        TOK[Token Usage Tracker<br/>record_token_usage]
+        SEM["Semantic Search<br/>(--ai mode)"]
+        LEV["Levenshtein Search<br/>(--no-ai mode)"]
+        CACHE --> EMB
+        CACHE --> TOK
+        CACHE --> SEM
+        CACHE --> LEV
+    end
+
+    ENG --> CACHE
+    PAT --> CACHE
+
+    %% ── AI Governance ──────────────────────────────────────────────
+    subgraph AI Governance — Soft-Gate
+        GOV[AIGovernanceService<br/>Preference Resolution]
+        LLM[LLMProvider<br/>8 Providers + CredentialVault]
+        HOOKS[GitHookManager<br/>pre-push Soft/Hard Gate]
+        GOV --> LLM
+        GOV --> HOOKS
+    end
+
+    ENG --> GOV
+    F --> HOOKS
+
+    %% ── Metrics & ROI ──────────────────────────────────────────────
+    subgraph Metrics & ROI — core/metrics.py
+        MET[MetricsCollector<br/>ProjectMetrics JSON]
+        ROI[ROI Tracking<br/>tokens_saved / cost_usd]
+        RWK[Category Rework Rates<br/>Confidence Adjustment Feed]
+        MET --> ROI
+        MET --> RWK
+    end
+
+    ENG --> MET
+    TOK --> ROI
+    RWK --> EST
+    G --> MET
+
+    %% ── Conversational Terminal Modes ──────────────────────────────
     subgraph Conversational Terminal Modes
         H[ce assist<br/>Conversational Assistant]
         I[ProjectStatusService<br/>core/project_status_service.py]
         J[ProjectAnalyzer<br/>core/project_analyzer.py]
-        K[Pattern Library + Cache<br/>engine.pattern_library/cache]
-        L[ce status • ce checklist<br/>Review Mode]
+        L[ce status • ce checklist<br/>Review / Inspection Mode]
+        WIZ[ce wizard<br/>Guided Step-by-Step]
         H --> I --> J
-        J --> K --> H
+        J --> CACHE
         J --> L
+        WIZ --> I
     end
 
+    G -->|Continuous Insights| H
+    G -->|Completion Overview| L
+
+    %% ── Automation Tracks ──────────────────────────────────────────
     subgraph Automation Tracks
-        M[ce autopilot<br/>cli/commands/autopilot.py]
-        N[ci_bootstrap Workflow<br/>docs/ci_bootstrap_template.yml]
+        M[ce autopilot<br/>AutopilotService]
+        N[ce ci-bootstrap<br/>GitHub Actions Workflow]
+        QS[ce quickstart<br/>5-min Guided Setup]
         M --> B
         M --> C
         M --> D
         M --> F
         N --> F
+        QS --> ENG
     end
 
-    G -->|Continuous Insights| H
-    G -->|Completion Overview| L
+    %% ── IDE Integration ────────────────────────────────────────────
+    subgraph IDE Integration — IDE-rules/
+        AG1["@Agente_PRD_360.md<br/>360° PRD Agent"]
+        AG2["@Agente_PRP_Orquestrador.md<br/>PRP Orchestrator"]
+        AG3["@Agente_Task_Direto.md<br/>Direct Task Agent"]
+        AG4["@Agente_UserStory_Refiner.md<br/>US Refiner"]
+        RULES["GLOBAL_ENGINEERING_RULES.json<br/>+ PROJECT_STANDARDS.md<br/>+ AGENTS.md"]
+        WF["Workflows 00–11<br/>Executable Runbooks"]
+    end
+
+    AG1 --> B
+    AG2 --> C
+    AG3 --> D
+    AG4 --> D
+    RULES --> E
+    WF --> E
+
+    %% ── DevOps ─────────────────────────────────────────────────────
+    subgraph DevOps — cli/commands/devops.py
+        GIT[ce git-setup<br/>Git Integration]
+        HOOK_INST[ce install-hooks<br/>Soft/Hard Gate Hooks]
+        CI[ce ci-bootstrap<br/>CI Pipeline Generation]
+    end
+
+    GIT --> HOOKS
+    HOOK_INST --> HOOKS
+    CI --> N
+
+    %% ── User Story Fast Path ───────────────────────────────────────
+    US[User Story<br/>ce generate-tasks --from-us] -->|"@Agente_UserStory_Refiner"| D

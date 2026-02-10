@@ -126,9 +126,7 @@ def build_ai_governance_summary(
 )
 @hybrid_ai_option("Force lightweight AI mode only for diagnostics.")
 @embedding_model_option("Override the embedding model for this diagnostic run.")
-def ai_governance_status(
-    project_dir, output_format, output, auto_install_mode, enable_ai, embedding_model
-):
+def ai_governance_status(project_dir, output_format, output, auto_install_mode, enable_ai, embedding_model):
     """Diagnose the AI policy applied to the current context."""
     project_path = Path(project_dir).resolve()
     summary = build_ai_governance_summary(
@@ -171,21 +169,15 @@ def _render_table(summary: dict) -> None:
     click.echo(
         f"CLI override      : {summary['overrides']['cli_enable_ai'] if summary['overrides']['cli_enable_ai'] is not None else 'not provided'}"
     )
-    click.echo(
-        f"Model override    : {summary['overrides']['cli_embedding_model'] or 'not provided'}"
-    )
+    click.echo(f"Model override    : {summary['overrides']['cli_embedding_model'] or 'not provided'}")
 
     click.echo("\nResolved policy")
     click.echo("-" * 70)
-    click.echo(
-        f"Dependencies ready    : {'yes' if summary['resolved']['dependencies_ready'] else 'no'}"
-    )
+    click.echo(f"Dependencies ready    : {'yes' if summary['resolved']['dependencies_ready'] else 'no'}")
     resolved_pref = summary["resolved"]["use_transformers"]
     click.echo(f"Use transformers?     : {resolved_pref if resolved_pref is not None else 'auto'}")
     click.echo(f"Resolved embedding    : {summary['resolved']['embedding_model']}")
-    click.echo(
-        f"Requires installation : {'yes' if summary['resolved']['requires_installation'] else 'no'}"
-    )
+    click.echo(f"Requires installation : {'yes' if summary['resolved']['requires_installation'] else 'no'}")
     roi = summary.get("roi")
     click.echo("\nROI (Context Pruning)")
     click.echo("-" * 70)
@@ -245,8 +237,7 @@ def _render_html_report(summary: dict) -> str:
         roi_rows = (
             "<h2>ROI (Context Pruning)</h2><table>"
             + "\n".join(
-                f"<tr><th>{label}</th><td>{value if value is not None else '—'}</td></tr>"
-                for label, value in roi_pairs
+                f"<tr><th>{label}</th><td>{value if value is not None else '—'}</td></tr>" for label, value in roi_pairs
             )
             + "</table>"
         )

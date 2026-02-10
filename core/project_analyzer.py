@@ -106,9 +106,7 @@ class ProjectAnalyzer:
         suggestions.extend(state.get("suggestions", []))
 
         incomplete_phases = [
-            phase_id
-            for phase_id, phase in state.get("prp_phases", {}).items()
-            if not phase.get("exists")
+            phase_id for phase_id, phase in state.get("prp_phases", {}).items() if not phase.get("exists")
         ]
         next_focus = incomplete_phases[0] if incomplete_phases else None
 
@@ -150,9 +148,7 @@ class ProjectAnalyzer:
             return "python-fastapi"
         if (self.project_dir / "package.json").exists():
             return "node-react"
-        if (self.project_dir / "vite.config.ts").exists() or (
-            self.project_dir / "vite.config.js"
-        ).exists():
+        if (self.project_dir / "vite.config.ts").exists() or (self.project_dir / "vite.config.js").exists():
             return "vue3"
         if (self.project_dir / "go.mod").exists():
             return "go-gin"
@@ -224,9 +220,11 @@ class ProjectAnalyzer:
 
         # Implementation is started if there's code in src/
         if (self.project_dir / "src").exists():
-            src_files = list((self.project_dir / "src").rglob("*.py")) + list(
-                (self.project_dir / "src").rglob("*.ts")
-            ) + list((self.project_dir / "src").rglob("*.tsx"))
+            src_files = (
+                list((self.project_dir / "src").rglob("*.py"))
+                + list((self.project_dir / "src").rglob("*.ts"))
+                + list((self.project_dir / "src").rglob("*.tsx"))
+            )
             status["implementation"] = len(src_files) > 0
 
         return status
@@ -236,51 +234,33 @@ class ProjectAnalyzer:
         suggestions = []
 
         if not state["completion_status"]["init"]:
-            suggestions.append(
-                "Execute 'ce init' para inicializar o projeto com estrutura completa"
-            )
+            suggestions.append("Execute 'ce init' para inicializar o projeto com estrutura completa")
             return suggestions
 
         if not state["has_prd"]:
-            suggestions.append(
-                "Execute 'ce generate-prd --interactive' para criar o PRD do projeto"
-            )
+            suggestions.append("Execute 'ce generate-prd --interactive' para criar o PRD do projeto")
             return suggestions
 
         if not state["has_prps"]:
-            suggestions.append(
-                "Execute 'ce generate-prps' para gerar os PRPs a partir do PRD"
-            )
+            suggestions.append("Execute 'ce generate-prps' para gerar os PRPs a partir do PRD")
             return suggestions
 
         # Check PRP completion
         prp_phases = state["prp_phases"]
-        incomplete_phases = [
-            phase_id
-            for phase_id, phase_info in prp_phases.items()
-            if not phase_info.get("exists")
-        ]
+        incomplete_phases = [phase_id for phase_id, phase_info in prp_phases.items() if not phase_info.get("exists")]
 
         if incomplete_phases:
             next_phase = incomplete_phases[0]
-            suggestions.append(
-                f"Complete a fase {next_phase}. Execute 'ce generate-prps --phase {next_phase}'"
-            )
+            suggestions.append(f"Complete a fase {next_phase}. Execute 'ce generate-prps --phase {next_phase}'")
 
         if not state["has_tasks"]:
-            suggestions.append(
-                "Execute 'ce generate-tasks' para gerar tasks executáveis a partir dos PRPs"
-            )
+            suggestions.append("Execute 'ce generate-tasks' para gerar tasks executáveis a partir dos PRPs")
         elif state["task_count"] == 0:
-            suggestions.append(
-                "Execute 'ce generate-tasks' para gerar tasks executáveis"
-            )
+            suggestions.append("Execute 'ce generate-tasks' para gerar tasks executáveis")
 
         # Check for validation
         if state["has_prps"]:
-            suggestions.append(
-                "Execute 'ce validate' para validar rastreabilidade dos PRPs"
-            )
+            suggestions.append("Execute 'ce validate' para validar rastreabilidade dos PRPs")
 
         return suggestions
 
@@ -302,12 +282,8 @@ class ProjectAnalyzer:
             try:
                 project_metrics = metrics_collector.load_metrics(project_name)
                 metrics["rework_rate"] = getattr(project_metrics, "rework_rate", 0.0)
-                metrics["test_coverage"] = getattr(
-                    project_metrics, "test_coverage_achieved", 0.0
-                )
-                metrics["task_completion_rate"] = getattr(
-                    project_metrics, "task_completion_rate", 0.0
-                )
+                metrics["test_coverage"] = getattr(project_metrics, "test_coverage_achieved", 0.0)
+                metrics["task_completion_rate"] = getattr(project_metrics, "task_completion_rate", 0.0)
             except Exception:
                 pass  # Metrics not available yet
 
@@ -376,9 +352,7 @@ class ProjectAnalyzer:
         }
         detected = set()
         for req in requirements:
-            target = (
-                f"{req.get('title', '')} {req.get('description', '')}".lower()
-            )
+            target = f"{req.get('title', '')} {req.get('description', '')}".lower()
             for needle, tag in keywords.items():
                 if needle in target:
                     detected.add(tag)
@@ -393,9 +367,7 @@ class ProjectAnalyzer:
             metrics_collector = MetricsCollector(self.project_dir / ".cache" / "metrics")
             estimator = EffortEstimator(metrics_collector)
 
-            task_files = list(tasks_dir.glob("TASK.*.json")) + list(
-                tasks_dir.glob("TASK.*.md")
-            )
+            task_files = list(tasks_dir.glob("TASK.*.json")) + list(tasks_dir.glob("TASK.*.md"))
 
             total_points = 0
             for task_file in task_files[:10]:  # Limit to avoid performance issues
@@ -413,9 +385,7 @@ class ProjectAnalyzer:
                         else:
                             continue
 
-                    points = estimator.estimate_effort_points(
-                        task, "python-fastapi", self.project_dir.name
-                    )
+                    points = estimator.estimate_effort_points(task, "python-fastapi", self.project_dir.name)
                     total_points += points
                 except Exception:
                     continue

@@ -10,7 +10,7 @@ Examples:
   ✅ CORRECT:
     Command: ce init (always English)
     Description: "Initialize project" / "Inicializar projeto" (translated)
-  
+
   ❌ WRONG:
     Command: ce iniciar (never translate commands)
 """
@@ -44,7 +44,6 @@ TRANSLATIONS = {
         "not_found": "not found",
         "completed": "completed",
         "failed": "failed",
-        
         # Commands
         "cmd.init.success": "Project {name} initialized at {path}",
         "cmd.init.stack": "Stack: {stack}",
@@ -52,24 +51,19 @@ TRANSLATIONS = {
         "cmd.init.git_not_found": "Directory .git not found. Git hooks were not generated.",
         "cmd.init.git_tip": "Run 'git init' first or pass --no-git-hooks to skip.",
         "cmd.init.git_later": "Or install hooks later via: ce install-hooks",
-        
         "cmd.generate_prd.success": "PRD generated at {path}",
         "cmd.generate_prd.next_step": "Next step: Execute 'ce generate-prps' or 'ce gpr'",
         "cmd.generate_prd.validated": "PRD validated successfully",
         "cmd.generate_prd.missing_fields": "Missing fields: {fields}",
         "cmd.generate_prd.validation_error": "Validation error: {error}",
-        
         "cmd.generate_prps.prereq_failed": "Prerequisite not met: PRD not found. Execute 'ce generate-prd' first.",
         "cmd.generate_prps.tip": "Execute 'ce generate-prd' first or use 'ce gpr --interactive'",
         "cmd.generate_prps.prd_detected": "PRD detected at: {path}",
         "cmd.generate_prps.prd_not_found": "PRD not found automatically.",
         "cmd.generate_prps.prd_not_found_error": "PRD not found. Use --interactive for guided mode or pass the PRD file path.",
-        
         "cmd.generate_tasks.prereq_failed": "Prerequisite not met: PRPs not found. Execute 'ce generate-prps' first.",
-        
         "cmd.validate.prereq_failed": "Prerequisite not met: PRD not found. Nothing to validate.",
         "cmd.validate.tip": "Execute commands in the correct pipeline order",
-        
         # Errors
         "error.file_not_found": "File not found: {file}",
         "error.file_not_found_tip": "Check if the path is correct",
@@ -78,7 +72,6 @@ TRANSLATIONS = {
         "error.unexpected": "Unexpected error: {error}",
         "error.unexpected_tip": "Execute 'ce doctor' for complete diagnostics",
         "error.prereq_validation_failed": "Could not validate prerequisites: {error}",
-        
         # Quickstart
         "quickstart.title": "CONTEXT ENGINEER - QUICKSTART",
         "quickstart.welcome": "Welcome! This guide will set up your first project in 5 minutes.",
@@ -118,7 +111,6 @@ TRANSLATIONS = {
         "quickstart.tip_aliases": "Use aliases for quick commands: ce gp, ce gpr, ce gt",
         "quickstart.tip_help": "Execute 'ce --help' to see all commands",
         "quickstart.tip_status": "Execute 'ce status' anytime to see progress",
-        
         # Explore
         "explore.title": "COMMAND EXPLORER - CONTEXT ENGINEER",
         "explore.category_not_found": "Category '{category}' not found",
@@ -127,7 +119,6 @@ TRANSLATIONS = {
         "explore.tip_help": "Use 'ce <command> --help' to see details of each command",
         "explore.tip_filter": "Use 'ce explore --category generation' to filter by category",
         "explore.tip_quickstart": "Execute 'ce quickstart' to start quickly",
-        
         "explore.cat_generation": "Generation",
         "explore.cat_generation_desc": "Commands to generate project artifacts",
         "explore.cat_validation": "Validation",
@@ -142,12 +133,10 @@ TRANSLATIONS = {
         "explore.cat_extensions_desc": "Commands for patterns and marketplace",
         "explore.cat_config": "Configuration",
         "explore.cat_config_desc": "Commands for configuration and governance",
-        
         # Prompts
         "prompt.multiline_title": "How to finish:",
         "prompt.multiline_enter": "Press Enter twice (empty line)",
         "prompt.multiline_ctrl_d": "Or press Ctrl+D",
-        
         # Assist
         "assist.warning_open_html": "--open is only supported when --format=html. Flag ignored.",
         "assist.report_saved": "HTML report saved at {path}",
@@ -185,7 +174,6 @@ TRANSLATIONS = {
         "not_found": "não encontrado",
         "completed": "concluído",
         "failed": "falhou",
-        
         # Commands
         "cmd.init.success": "Projeto {name} inicializado em {path}",
         "cmd.init.stack": "Stack: {stack}",
@@ -193,24 +181,19 @@ TRANSLATIONS = {
         "cmd.init.git_not_found": "Diretório .git não encontrado. Git hooks não foram gerados.",
         "cmd.init.git_tip": "Execute 'git init' primeiro ou use --no-git-hooks para pular.",
         "cmd.init.git_later": "Ou instale hooks depois via: ce install-hooks",
-        
         "cmd.generate_prd.success": "PRD gerado em {path}",
         "cmd.generate_prd.next_step": "Próximo passo: Execute 'ce generate-prps' ou 'ce gpr'",
         "cmd.generate_prd.validated": "PRD validado com sucesso",
         "cmd.generate_prd.missing_fields": "Campos faltando: {fields}",
         "cmd.generate_prd.validation_error": "Erro de validação: {error}",
-        
         "cmd.generate_prps.prereq_failed": "Pré-requisito não atendido: PRD não encontrado. Execute 'ce generate-prd' primeiro.",
         "cmd.generate_prps.tip": "Execute 'ce generate-prd' primeiro ou use 'ce gpr --interactive'",
         "cmd.generate_prps.prd_detected": "PRD detectado em: {path}",
         "cmd.generate_prps.prd_not_found": "PRD não encontrado automaticamente.",
         "cmd.generate_prps.prd_not_found_error": "PRD não encontrado. Use --interactive para modo guiado ou passe o caminho do arquivo PRD.",
-        
         "cmd.generate_tasks.prereq_failed": "Pré-requisito não atendido: PRPs não encontrados. Execute 'ce generate-prps' primeiro.",
-        
         "cmd.validate.prereq_failed": "Pré-requisito não atendido: PRD não encontrado. Não há nada para validar.",
         "cmd.validate.tip": "Execute os comandos na ordem correta do pipeline",
-        
         # Errors
         "error.file_not_found": "Arquivo não encontrado: {file}",
         "error.file_not_found_tip": "Verifique se o caminho está correto",
@@ -219,7 +202,6 @@ TRANSLATIONS = {
         "error.unexpected": "Erro inesperado: {error}",
         "error.unexpected_tip": "Execute 'ce doctor' para diagnóstico completo",
         "error.prereq_validation_failed": "Não foi possível validar pré-requisitos: {error}",
-        
         # Quickstart
         "quickstart.title": "CONTEXT ENGINEER - INÍCIO RÁPIDO",
         "quickstart.welcome": "Bem-vindo! Este guia vai configurar seu primeiro projeto em 5 minutos.",
@@ -259,7 +241,6 @@ TRANSLATIONS = {
         "quickstart.tip_aliases": "Use aliases para comandos rápidos: ce gp, ce gpr, ce gt",
         "quickstart.tip_help": "Execute 'ce --help' para ver todos os comandos",
         "quickstart.tip_status": "Execute 'ce status' a qualquer momento para ver o progresso",
-        
         # Explore
         "explore.title": "EXPLORADOR DE COMANDOS - CONTEXT ENGINEER",
         "explore.category_not_found": "Categoria '{category}' não encontrada",
@@ -268,7 +249,6 @@ TRANSLATIONS = {
         "explore.tip_help": "Use 'ce <comando> --help' para ver detalhes de cada comando",
         "explore.tip_filter": "Use 'ce explore --category geração' para filtrar por categoria",
         "explore.tip_quickstart": "Execute 'ce quickstart' para começar rapidamente",
-        
         "explore.cat_generation": "Geração",
         "explore.cat_generation_desc": "Comandos para gerar artefatos do projeto",
         "explore.cat_validation": "Validação",
@@ -283,12 +263,10 @@ TRANSLATIONS = {
         "explore.cat_extensions_desc": "Comandos para padrões e marketplace",
         "explore.cat_config": "Configuração",
         "explore.cat_config_desc": "Comandos para configuração e governança",
-        
         # Prompts
         "prompt.multiline_title": "Como finalizar:",
         "prompt.multiline_enter": "Pressione Enter duas vezes (linha vazia)",
         "prompt.multiline_ctrl_d": "Ou pressione Ctrl+D",
-        
         # Assist
         "assist.warning_open_html": "--open é suportado apenas quando --format=html. Flag ignorada.",
         "assist.report_saved": "Relatório HTML salvo em {path}",
@@ -312,28 +290,28 @@ TRANSLATIONS = {
         "assist.run_status": "Executar 'ce status' para inspecionar progresso geral",
         "assist.start_tasks": "Começar a implementar Tasks via agentes IDE",
         "assist.interrupted": "Assistente interrompido.",
-    }
+    },
 }
 
 
 class I18n:
     """Internationalization manager for Context Engineer."""
-    
+
     def __init__(self, language: str | None = None, project_dir: Path | None = None):
         """Initialize i18n with language preference.
-        
+
         Args:
             language: Language code (en-us or pt-br). If None, tries to load from project config.
             project_dir: Project directory to load config from.
         """
         self.language = self._resolve_language(language, project_dir)
-    
+
     def _resolve_language(self, language: str | None, project_dir: Path | None) -> str:
         """Resolve language from parameter, config, or default."""
         # 1. Explicit parameter
         if language:
             return self._normalize_language(language)
-        
+
         # 2. Project configuration
         if project_dir:
             config_path = project_dir / ".ce-config.json"
@@ -345,14 +323,14 @@ class I18n:
                             return self._normalize_language(config["language"])
                 except Exception:
                     pass
-        
+
         # 3. Default
         return DEFAULT_LANGUAGE
-    
+
     def _normalize_language(self, lang: str) -> str:
         """Normalize language code."""
         lang_lower = lang.lower().strip()
-        
+
         # Map common variations
         lang_map = {
             "en": "en-us",
@@ -364,30 +342,30 @@ class I18n:
             "portugues": "pt-br",
             "português": "pt-br",
         }
-        
+
         return lang_map.get(lang_lower, DEFAULT_LANGUAGE)
-    
+
     def t(self, key: str, **kwargs: Any) -> str:
         """Translate a key with optional formatting parameters.
-        
+
         Args:
             key: Translation key (e.g., 'cmd.init.success')
             **kwargs: Format parameters for the translation string
-            
+
         Returns:
             Translated and formatted string
         """
         translations = TRANSLATIONS.get(self.language, TRANSLATIONS[DEFAULT_LANGUAGE])
         template = translations.get(key, key)
-        
+
         if kwargs:
             try:
                 return template.format(**kwargs)
             except (KeyError, ValueError):
                 return template
-        
+
         return template
-    
+
     def set_language(self, language: str) -> None:
         """Change the current language."""
         self.language = self._normalize_language(language)
@@ -399,34 +377,34 @@ _i18n_instance: I18n | None = None
 
 def get_i18n(language: str | None = None, project_dir: Path | None = None) -> I18n:
     """Get or create i18n instance.
-    
+
     Args:
         language: Language code
         project_dir: Project directory
-        
+
     Returns:
         I18n instance
     """
     global _i18n_instance
-    
+
     # Always create new instance if parameters provided
     if language is not None or project_dir is not None:
         return I18n(language=language, project_dir=project_dir)
-    
+
     # Return cached instance or create default
     if _i18n_instance is None:
         _i18n_instance = I18n()
-    
+
     return _i18n_instance
 
 
 def t(key: str, **kwargs: Any) -> str:
     """Shorthand for translation.
-    
+
     Args:
         key: Translation key
         **kwargs: Format parameters
-        
+
     Returns:
         Translated string
     """

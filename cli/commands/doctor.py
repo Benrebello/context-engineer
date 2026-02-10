@@ -144,9 +144,7 @@ def doctor(project_dir, output_format, apply_profile, ai_profile, embedding_mode
             raise click.ClickException(f"Unknown AI profile: {ai_profile}")
         if apply_profile:
             if not builder.project_root:
-                raise click.ClickException(
-                    "Project has no .ce-config.json to apply profiles."
-                )
+                raise click.ClickException("Project has no .ce-config.json to apply profiles.")
             payload = apply_ai_profile(builder.project_root, ai_profile)
             builder.refresh_config()
             click.echo(f"[OK] AI profile '{ai_profile}' applied:")
@@ -196,12 +194,8 @@ def _render_table(report: dict) -> None:
     if roi:
         click.echo(f"Tokens saved           : {roi.get('tokens_saved')}")
         click.echo(f"Tokens used            : {roi.get('tokens_used')}")
-        click.echo(
-            f"Savings %              : {roi.get('savings_percentage', 0.0):.2f}%"
-        )
-        click.echo(
-            f"Cost saved (USD)       : ${roi.get('estimated_cost_saved_usd', 0.0):.2f}"
-        )
+        click.echo(f"Savings %              : {roi.get('savings_percentage', 0.0):.2f}%")
+        click.echo(f"Cost saved (USD)       : ${roi.get('estimated_cost_saved_usd', 0.0):.2f}")
         click.echo(f"Events                 : {roi.get('context_pruning_events')}")
     else:
         click.echo("No ROI events recorded yet.")

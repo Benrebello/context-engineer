@@ -64,9 +64,7 @@ CONFIG_SERVICE = ProjectConfigService(CONFIG_FILENAME)
 STATUS_SERVICE = ProjectStatusService(PROMPT_SERVICE, CONFIG_SERVICE)
 MARKETPLACE_SERVICE = MarketplaceService(repo_root=REPO_ROOT)
 AUTOPILOT_SERVICE = AutopilotService(CONFIG_FILENAME)
-AI_GOVERNANCE_SERVICE = AIGovernanceService(
-    CONFIG_SERVICE, available_models=AVAILABLE_EMBEDDING_MODELS
-)
+AI_GOVERNANCE_SERVICE = AIGovernanceService(CONFIG_SERVICE, available_models=AVAILABLE_EMBEDDING_MODELS)
 
 
 def _resolve_cli_main_attr(name: str, default: Any) -> Any:
@@ -88,9 +86,7 @@ def embedding_model_option(
     help_text: str = "Define o modelo de embedding para modo IA (ex.: all-minilm-l6-v2)",
 ) -> Any:
     """Reusable click option for selecting embedding models per comando."""
-    choices = sorted(
-        set(list(AVAILABLE_EMBEDDING_MODELS.keys()) + list(AVAILABLE_EMBEDDING_MODELS.values()))
-    )
+    choices = sorted(set(list(AVAILABLE_EMBEDDING_MODELS.keys()) + list(AVAILABLE_EMBEDDING_MODELS.values())))
     return click.option(
         "--embedding-model",
         type=click.Choice(choices),
@@ -155,9 +151,7 @@ def save_project_config(project_dir: Path, overrides: dict) -> None:
         json.dump(existing, config_file, indent=2, ensure_ascii=False)
 
 
-def resolve_ai_preference(
-    enable_ai: bool | None, context_hint: Path | None = None
-) -> tuple[bool, Path | None]:
+def resolve_ai_preference(enable_ai: bool | None, context_hint: Path | None = None) -> tuple[bool, Path | None]:
     """
     Decide whether transformers should be enabled for this command execution.
 
@@ -204,9 +198,7 @@ def _attempt_transformer_install(exit_after_success: bool = True) -> bool:
 
 def check_intelligence_mode(enable_override: bool | None = None) -> bool:
     """Assess transformer availability, honoring user overrides and guiding install."""
-    transformers_available = _resolve_cli_main_attr(
-        "TRANSFORMERS_AVAILABLE", TRANSFORMERS_AVAILABLE
-    )
+    transformers_available = _resolve_cli_main_attr("TRANSFORMERS_AVAILABLE", TRANSFORMERS_AVAILABLE)
     if enable_override is False:
         click.secho(
             "\n[Context Engineer] Modo IA desativado manualmente (--no-ai).",
@@ -414,69 +406,60 @@ def echo_step(step_number: int, total_steps: int, description: str) -> None:
 
 def get_project_language(project_dir: Path | None = None) -> str:
     """Get language preference from project configuration.
-    
+
     Args:
         project_dir: Project directory. If None, uses current directory.
-        
+
     Returns:
         Language code (en-us or pt-br)
     """
     if project_dir is None:
         project_dir = Path.cwd()
-    
+
     i18n = get_i18n(project_dir=project_dir)
     return i18n.language
 
 
 def validate_command_prerequisites(command_name: str, project_dir: Path) -> bool:
     """Validate prerequisites before running command to prevent mid-execution failures.
-    
+
     Args:
         command_name: Name of the command to validate
         project_dir: Project directory path
-        
+
     Returns:
         True if all prerequisites are met, False otherwise
     """
     from core.project_analyzer import ProjectAnalyzer
-    
+
     i18n = get_i18n(project_dir=project_dir)
-    
+
     prerequisites = {
         "generate-prps": {
             "checks": ["has_prd"],
-            "keys": {
-                "has_prd": "cmd.generate_prps.prereq_failed"
-            }
+            "keys": {"has_prd": "cmd.generate_prps.prereq_failed"},
         },
         "generate-tasks": {
             "checks": ["has_prps"],
-            "keys": {
-                "has_prps": "cmd.generate_tasks.prereq_failed"
-            }
+            "keys": {"has_prps": "cmd.generate_tasks.prereq_failed"},
         },
-        "validate": {
-            "checks": ["has_prd"],
-            "keys": {
-                "has_prd": "cmd.validate.prereq_failed"
-            }
-        },
+        "validate": {"checks": ["has_prd"], "keys": {"has_prd": "cmd.validate.prereq_failed"}},
     }
-    
+
     if command_name not in prerequisites:
         return True
-    
+
     try:
         analyzer = ProjectAnalyzer(project_dir)
         state = analyzer.analyze_project_state()
-        
+
         prereq_config = prerequisites[command_name]
         for check in prereq_config["checks"]:
             if not state.get(check, False):
                 echo_error(i18n.t(prereq_config["keys"][check]))
                 echo_info(i18n.t("cmd.validate.tip"))
                 return False
-        
+
         return True
     except Exception as exc:
         echo_warning(i18n.t("error.prereq_validation_failed", error=str(exc)))

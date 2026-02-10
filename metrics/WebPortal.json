@@ -1,7 +1,7 @@
 {
   "project_name": "WebPortal",
   "prp_generation_time_minutes": 0.00025327991667533446,
-  "total_phase_generations": 56,
+  "total_phase_generations": 264,
   "failed_phase_generations": 0,
   "phase_failure_rate": 0.0,
   "task_completion_rate": 0.0,
@@ -11,7 +11,7 @@
   "total_tasks": 0,
   "completed_tasks": 0,
   "created_at": "2025-12-23T13:30:58.358113",
-  "updated_at": "2026-01-07T14:55:54.347647+00:00",
+  "updated_at": "2026-02-10T12:57:14.618618+00:00",
   "category_rework_rates": {},
   "tokens_saved": 0,
   "tokens_used": 0,
@@ -22,18 +22,18 @@
   "last_traceability_check": "",
   "phase_generation_stats": {
     "F0": {
-      "runs": 28,
+      "runs": 132,
       "failures": 0,
-      "total_time_seconds": 0.09879434300000867,
-      "avg_time_seconds": 0.0035283693928574522,
+      "total_time_seconds": 0.5587159429987878,
+      "avg_time_seconds": 0.004232696537869604,
       "failure_rate": 0.0,
       "last_error": ""
     },
     "F1": {
-      "runs": 28,
+      "runs": 132,
       "failures": 0,
-      "total_time_seconds": 0.25905753301503864,
-      "avg_time_seconds": 0.009252054750537095,
+      "total_time_seconds": 1.420350679008152,
+      "avg_time_seconds": 0.010760232416728424,
       "failure_rate": 0.0,
       "last_error": ""
     }

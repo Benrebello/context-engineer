@@ -130,6 +130,37 @@ def test_render_global_dashboard_uses_template(metrics_collector) -> None:
     assert "python-fastapi" in rendered
 
 
+def test_analyze_efficiency_medium_risks(metrics_collector) -> None:
+    service, _ = _build_reporting_service(metrics_collector)
+    metrics = _make_metrics(rework_rate=20.0, task_completion_rate=60.0)
+    analysis = service.analyze_efficiency(metrics)
+    assert analysis["rework_risk"] == "medium"
+    assert analysis["completion_risk"] == "medium"
+
+
+def test_analyze_efficiency_low_risks(metrics_collector) -> None:
+    service, _ = _build_reporting_service(metrics_collector)
+    metrics = _make_metrics(rework_rate=5.0, task_completion_rate=90.0)
+    analysis = service.analyze_efficiency(metrics)
+    assert analysis["rework_risk"] == "low"
+    assert analysis["completion_risk"] == "low"
+
+
+def test_render_project_dashboard_missing_template(metrics_collector) -> None:
+    service, env = _build_reporting_service(metrics_collector)
+    # Remove the template
+    env.templates.clear()
+    with pytest.raises(FileNotFoundError):
+        service.render_project_dashboard_html("alpha", _make_metrics(), {}, {})
+
+
+def test_render_global_dashboard_missing_template(metrics_collector) -> None:
+    service, env = _build_reporting_service(metrics_collector)
+    env.templates.clear()
+    with pytest.raises(FileNotFoundError):
+        service.render_global_dashboard_html([], {})
+
+
 def test_load_global_metrics_applies_filter(metrics_collector) -> None:
     metrics_python = _make_metrics(project_name="py", task_completion_rate=90)
     metrics_node = _make_metrics(project_name="node", task_completion_rate=60)

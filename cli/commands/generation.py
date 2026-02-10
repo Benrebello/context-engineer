@@ -16,11 +16,9 @@ from cli.shared import (
     create_engine,
     echo_error,
     echo_info,
-    echo_step,
     echo_success,
     echo_warning,
     embedding_model_option,
-    get_project_language,
     hybrid_ai_option,
     normalize_embedding_model,
     save_project_config,
@@ -72,9 +70,7 @@ def init(
                 project_name = output_path.name
 
         engine = create_engine(use_transformers=use_transformers, embedding_model=embedding_model)
-        result = engine.init_project(
-            template=template, project_name=project_name, stack=stack, output_dir=output_path
-        )
+        result = engine.init_project(template=template, project_name=project_name, stack=stack, output_dir=output_path)
 
         # Determine language
         if not language:
@@ -84,7 +80,7 @@ def init(
                 default="en-us",
                 show_default=True,
             )
-        
+
         config_overrides = {
             "use_transformers": use_transformers,
             "language": language.lower(),
@@ -92,7 +88,7 @@ def init(
         if embedding_model:
             config_overrides["embedding_model"] = normalize_embedding_model(embedding_model)
         save_project_config(output_path, config_overrides)
-        
+
         # Get i18n instance with selected language
         i18n = get_i18n(language=language, project_dir=output_path)
 
@@ -106,7 +102,7 @@ def init(
                 click.echo(f"   • {dir_path}/")
             if len(created_dirs) > 10:
                 click.echo(f"   ... plus {len(created_dirs) - 10} more directories")
-        
+
         echo_info(i18n.t("cmd.init.tip_alias"))
 
         created_files = result.get("created_files", [])
@@ -283,9 +279,7 @@ def generate_prd(
         raise click.Abort()
 
 
-@click.command(
-    help="Generate PRPs (Phase Requirement Plans) for each phase (F1-F11) from an existing PRD."
-)
+@click.command(help="Generate PRPs (Phase Requirement Plans) for each phase (F1-F11) from an existing PRD.")
 @click.argument("prd_file", required=False, type=click.Path(exists=True))
 @click.option("--output", default="./prps", type=click.Path(), help="Output directory for generated PRPs.")
 @click.option("--parallel", is_flag=True, help="Generate phases in parallel.")
@@ -311,7 +305,7 @@ def generate_prps(
         # Validate prerequisites
         if not validate_command_prerequisites("generate-prps", Path.cwd()):
             raise click.Abort()
-        
+
         engine = create_engine(use_transformers=enable_ai, embedding_model=embedding_model)
         output_path = Path(output)
 
@@ -332,9 +326,7 @@ def generate_prps(
             if not found_prd:
                 if interactive:
                     echo_warning("PRD not found automatically.")
-                    prd_file_path = click.prompt(
-                        "Type the path to the PRD file", type=click.Path(exists=True)
-                    )
+                    prd_file_path = click.prompt("Type the path to the PRD file", type=click.Path(exists=True))
                     found_prd = Path(prd_file_path)
                 else:
                     echo_error("PRD not found. Use --interactive for guided mode or pass the PRD file path.")
@@ -350,7 +342,20 @@ def generate_prps(
         if preview:
             click.echo("\nPreview: Phases that would be generated")
             click.echo("─" * 70)
-            expected_phases = ["F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11"]
+            expected_phases = [
+                "F0",
+                "F1",
+                "F2",
+                "F3",
+                "F4",
+                "F5",
+                "F6",
+                "F7",
+                "F8",
+                "F9",
+                "F10",
+                "F11",
+            ]
             if phase:
                 click.echo(f"   {output_path / f'{phase}_*.md'}")
             else:
@@ -359,9 +364,7 @@ def generate_prps(
             click.echo("\nRun without --preview to generate the files.")
             return
 
-        result = engine.generate_prps(
-            prd_file=Path(prd_file), output_dir=output_path, parallel=parallel
-        )
+        result = engine.generate_prps(prd_file=Path(prd_file), output_dir=output_path, parallel=parallel)
         click.echo(f"\n[OK] PRPs generated at {output}")
         for phase_file in result.get("phases", [])[:10]:
             click.echo(f"   - {Path(phase_file).name}")
@@ -539,9 +542,7 @@ What does validation include?
 
         if api_spec and ui_tasks_dir:
             click.echo("\nRunning Deep Cross-Validation (Contract Integrity)...")
-            contract_result = validator.validate_contract_integrity(
-                Path(api_spec), Path(ui_tasks_dir)
-            )
+            contract_result = validator.validate_contract_integrity(Path(api_spec), Path(ui_tasks_dir))
             results["contract_integrity"] = contract_result.to_dict()
 
         all_valid = True
@@ -665,12 +666,8 @@ def estimate_effort(task_file, stack, project_name, detailed):
             click.echo(f" • Steps: {breakdown['complexity_metrics']['steps']}")
             click.echo(f" • Test scenarios: {breakdown['complexity_metrics']['test_scenarios']}")
             click.echo(f" • Dependencies: {breakdown['complexity_metrics']['dependencies']}")
-            click.echo(
-                f" • Stack complexity: {breakdown['complexity_metrics']['stack_complexity']:.2f}"
-            )
-            click.echo(
-                f" • Category complexity: {breakdown['complexity_metrics']['category_complexity']:.2f}"
-            )
+            click.echo(f" • Stack complexity: {breakdown['complexity_metrics']['stack_complexity']:.2f}")
+            click.echo(f" • Category complexity: {breakdown['complexity_metrics']['category_complexity']:.2f}")
 
     except Exception as exc:
         click.echo(f"Error: {exc}", err=True)
@@ -709,7 +706,10 @@ def estimate_batch(tasks_dir, stack, project_name, output):
                         if match:
                             task = json.loads(match.group(1))
                         else:
-                            click.echo(f"Could not extract JSON payload from the Task {task_file.name}.", err=True)
+                            click.echo(
+                                f"Could not extract JSON payload from the Task {task_file.name}.",
+                                err=True,
+                            )
                             continue
 
                 task_id = task.get("task_id", task_file.stem)

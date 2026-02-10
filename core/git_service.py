@@ -51,9 +51,7 @@ class GitService:
         """Return the set of FR/US/TASK identifiers present in a string."""
         return {match.group(1).upper() for match in TASK_ID_PATTERN.finditer(content or "")}
 
-    def build_commit_mapping(
-        self, since: str | None = None, include_uncommitted: bool = True
-    ) -> dict:
+    def build_commit_mapping(self, since: str | None = None, include_uncommitted: bool = True) -> dict:
         """
         Build a mapping between task identifiers and git commits.
 
@@ -124,9 +122,7 @@ class GitService:
         try:
             rev_range = since or "HEAD"
             log_cmd = ["git", "log", "--pretty=format:%H", rev_range]
-            result = subprocess.run(
-                log_cmd, cwd=self.project_dir, capture_output=True, text=True, check=True
-            )
+            result = subprocess.run(log_cmd, cwd=self.project_dir, capture_output=True, text=True, check=True)
             commit_hashes = [line.strip() for line in result.stdout.splitlines() if line.strip()]
             for commit_hash in commit_hashes:
                 map_commit(commit_hash)
@@ -147,16 +143,14 @@ class GitService:
                     for task_id in task_ids:
                         entry = ensure_task(task_id)
                         if not any(c.get("hash") == "WORKTREE" for c in entry["commits"]):
-                            entry["commits"].append(
-                                {"hash": "WORKTREE", "message": "Uncommitted change"}
-                            )
+                            entry["commits"].append({"hash": "WORKTREE", "message": "Uncommitted change"})
             except subprocess.CalledProcessError:
                 self.warning_handler("[AVISO] Não foi possível executar 'git status'.")
 
         commit_mapping = sorted(mapping.values(), key=lambda item: item["task_id"])
         return {
             "project_name": self.project_dir.name,
-            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "commit_mapping": commit_mapping,
         }
 
@@ -192,9 +186,7 @@ class GitHookManager:
         pre_push_hook = git_hooks_dir / "pre-push"
         pre_commit_hook = git_hooks_dir / "pre-commit"
 
-        pre_push_hook.write_text(
-            self._render_pre_push_hook(project_name, soft_gate), encoding="utf-8"
-        )
+        pre_push_hook.write_text(self._render_pre_push_hook(project_name, soft_gate), encoding="utf-8")
         pre_commit_hook.write_text(self._render_pre_commit_hook(), encoding="utf-8")
 
         os.chmod(pre_push_hook, os.stat(pre_push_hook).st_mode | stat.S_IEXEC)

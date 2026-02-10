@@ -116,9 +116,7 @@ class PRPValidator:
         matches = re.findall(pattern, content)
         return {f"US-{match}" for match in matches}
 
-    def validate_prp(
-        self, prp_file: Path, schema_name: str = "prp-phase-schema"
-    ) -> ValidationResult:
+    def validate_prp(self, prp_file: Path, schema_name: str = "prp-phase-schema") -> ValidationResult:
         """
         Validate PRP file against schema
 
@@ -140,9 +138,7 @@ class PRPValidator:
         except ValidationError as e:
             return ValidationResult(
                 False,
-                errors=[
-                    f"Validation error: {e.message} at path: {'.'.join(str(p) for p in e.path)}"
-                ],
+                errors=[f"Validation error: {e.message} at path: {'.'.join(str(p) for p in e.path)}"],
             )
         except Exception as e:
             return ValidationResult(False, errors=[f"Error validating file: {str(e)}"])
@@ -213,9 +209,7 @@ class PRPValidator:
         # Check if all MUST features are referenced
         for fr_id, fr_data in prd_features.items():
             if fr_id not in referenced_frs:
-                warnings.append(
-                    f"MUST feature {fr_id} ({fr_data['title']}) is not referenced in any PRP"
-                )
+                warnings.append(f"MUST feature {fr_id} ({fr_data['title']}) is not referenced in any PRP")
 
         # Check if referenced features exist in PRD
         for fr_id in referenced_frs:
@@ -252,13 +246,11 @@ class PRPValidator:
                         task_ids.add(task_id)
             except Exception as e:
                 errors.append(f"Error loading task {task_file}: {e}")
-        
+
         # We might want to handle errors differently, but for now we return what we found
         return task_ids, task_data_map
 
-    def _validate_task_acceptance_criteria(
-        self, fr_id: str, fr_data: dict, task_data_map: dict
-    ) -> list[str]:
+    def _validate_task_acceptance_criteria(self, fr_id: str, fr_data: dict, task_data_map: dict) -> list[str]:
         """Validate acceptance criteria coverage for a requirement"""
         warnings = []
         if fr_id in task_data_map:
@@ -319,15 +311,11 @@ class PRPValidator:
         # Validate traceability: Every MUST FR must have a corresponding Task
         for fr_id, fr_data in must_frs.items():
             if fr_id not in task_ids:
-                errors.append(
-                    f"MUST requirement {fr_id} ({fr_data['title']}) has no corresponding Task"
-                )
+                errors.append(f"MUST requirement {fr_id} ({fr_data['title']}) has no corresponding Task")
 
         # Validate acceptance criteria mapping
         for fr_id, fr_data in must_frs.items():
-            warnings.extend(
-                self._validate_task_acceptance_criteria(fr_id, fr_data, task_data_map)
-            )
+            warnings.extend(self._validate_task_acceptance_criteria(fr_id, fr_data, task_data_map))
 
         # Check for orphaned tasks (tasks without corresponding FR)
         all_frs = {fr.get("id") for fr in prd_data.get("functional_requirements", [])}
@@ -338,9 +326,7 @@ class PRPValidator:
 
         return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
-    def validate_all(
-        self, prps_dir: Path, prd_file: Path | None = None, tasks_dir: Path | None = None
-    ) -> dict:
+    def validate_all(self, prps_dir: Path, prd_file: Path | None = None, tasks_dir: Path | None = None) -> dict:
         """
         Validate all PRPs in directory with full traceability
 
@@ -440,21 +426,23 @@ class PRPValidator:
                     url = match.group(-1)
                     if url.startswith("http"):
                         from urllib.parse import urlparse
+
                         parsed = urlparse(url)
                         path = parsed.path
                     else:
                         path = url.split("?")[0]
-                    
+
                     found = any(
-                        endpoint["path"] == path 
-                        or re.match(re.sub(r"\{[^}]+\}", r"[^/]+", endpoint["path"]).replace("/", r"\/"), path)
+                        endpoint["path"] == path
+                        or re.match(
+                            re.sub(r"\{[^}]+\}", r"[^/]+", endpoint["path"]).replace("/", r"\/"),
+                            path,
+                        )
                         for endpoint in endpoints.values()
                     )
 
                     if not found and path.startswith("/api"):
-                        task_warnings.append(
-                            f"Task {task_file.name} may reference unvalidated endpoint: {path}"
-                        )
+                        task_warnings.append(f"Task {task_file.name} may reference unvalidated endpoint: {path}")
 
         except Exception as e:
             task_warnings.append(f"Error analyzing task {task_file.name}: {e}")
@@ -484,9 +472,7 @@ class PRPValidator:
             return ValidationResult(False, errors=errors)
 
         # Load UI tasks
-        ui_task_files = list(ui_tasks_dir.glob("TASK.*.md")) + list(
-            ui_tasks_dir.glob("TASK.*.json")
-        )
+        ui_task_files = list(ui_tasks_dir.glob("TASK.*.md")) + list(ui_tasks_dir.glob("TASK.*.json"))
 
         # Process tasks in parallel
         with ThreadPoolExecutor(max_workers=4) as executor:
@@ -529,17 +515,13 @@ class PRPValidator:
 
         # Check if Prism is available
         try:
-            result = subprocess.run(
-                ["prism", "--version"], check=False, capture_output=True, text=True, timeout=5
-            )
+            result = subprocess.run(["prism", "--version"], check=False, capture_output=True, text=True, timeout=5)
             prism_available = result.returncode == 0
         except (FileNotFoundError, subprocess.TimeoutExpired):
             prism_available = False
 
         if not prism_available:
-            warnings.append(
-                "Prism não está instalado. Instale com: npm install -g @stoplight/prism-cli"
-            )
+            warnings.append("Prism não está instalado. Instale com: npm install -g @stoplight/prism-cli")
             warnings.append("Mock server não será iniciado automaticamente.")
             return {
                 "success": False,
@@ -554,9 +536,7 @@ class PRPValidator:
 
         try:
             # Start mock server in background
-            process = subprocess.Popen(
-                mock_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
+            process = subprocess.Popen(mock_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             # Wait a bit for server to start
             time.sleep(2)

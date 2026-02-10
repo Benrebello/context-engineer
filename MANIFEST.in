@@ -2,6 +2,6 @@ recursive-include templates *
 recursive-include stacks *
 recursive-include schemas *
 recursive-include patterns *
-recursive-include IDE *
+recursive-include IDE-rules *
 include README.md
 include requirements.txt

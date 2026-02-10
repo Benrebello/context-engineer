@@ -14,7 +14,7 @@ class PromptService:
 
     def prompt_multiline(self, prompt_text: str, default: str = "", project_dir: Path | None = None) -> str:
         i18n = get_i18n(project_dir=project_dir)
-        
+
         click.echo(f"\n{prompt_text}")
         click.echo("")
         click.secho(i18n.t("prompt.multiline_title"), fg="yellow", bold=True)

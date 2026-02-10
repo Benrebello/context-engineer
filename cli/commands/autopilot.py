@@ -23,9 +23,7 @@ def _resolve_cli_command(name: str) -> Callable:
     return getattr(cli_main, name)
 
 
-@click.command(
-    help="Run the Autopilot (idea/PRD/PRPs/Tasks) without interaction, adapting to available inputs."
-)
+@click.command(help="Run the Autopilot (idea/PRD/PRPs/Tasks) without interaction, adapting to available inputs.")
 @click.option(
     "--project-dir",
     default=".",

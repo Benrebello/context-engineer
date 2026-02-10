@@ -52,9 +52,7 @@ def ide_sync(project_dir, source_dir, target_dir, ide_name, force) -> None:
 
     bundle_root = Path(source_dir).resolve() if source_dir else (REPO_ROOT / "IDE-rules")
     if not bundle_root.exists():
-        raise click.ClickException(
-            f"Prompt bundle not found at {bundle_root}. Provide --source-dir."
-        )
+        raise click.ClickException(f"Prompt bundle not found at {bundle_root}. Provide --source-dir.")
 
     target_path = Path(target_dir)
     if not target_path.is_absolute():

@@ -15,6 +15,7 @@ import yaml
 from jinja2 import TemplateNotFound
 
 from .cache import IntelligenceCache
+from .metrics import MetricsCollector
 from .pattern_library import PatternLibrary
 from .planning import EffortEstimator
 from .stack_plugins import StackPlugin, StackPluginManager
@@ -60,24 +61,18 @@ class ContextEngine:
         self.validator = PRPValidator(self.schemas_dir)
         self.userstory_refiner = UserStoryRefiner()
         self.task_generator = TaskGenerator(self.userstory_refiner)
-        self.cache = IntelligenceCache(
-            self.cache_dir, use_transformers=use_transformers, model_name=embedding_model
-        )
+        self.cache = IntelligenceCache(self.cache_dir, use_transformers=use_transformers, model_name=embedding_model)
 
         # Initialize stack plugin manager
         stacks_dir = base_dir / "stacks"
         self.stack_plugin_manager = StackPluginManager(stacks_dir)
 
         # Initialize effort estimator
-        from .metrics import MetricsCollector
-
         metrics_collector = MetricsCollector(self.cache_dir.parent / "metrics")
         self.effort_estimator = EffortEstimator(metrics_collector)
         self.metrics_collector = metrics_collector
 
-    def init_project(
-        self, template: str, project_name: str, stack: str, output_dir: Path, **variables
-    ) -> dict:
+    def init_project(self, template: str, project_name: str, stack: str, output_dir: Path, **variables) -> dict:
         """
         Initialize a new project from template
 
@@ -166,45 +161,18 @@ class ContextEngine:
 
         return result
 
-    def _create_readme(self, output_dir: Path, project_name: str, stack: str, stack_plugin: StackPlugin | None) -> str:
-        """
-        Create README.md via template engine
-        
-        Args:
-            output_dir: Output directory
-            project_name: Project name
-            stack: Stack name
-            stack_plugin: Optional StackPlugin instance
-            
-        Returns:
-            README file path
-        """
-        readme_context = {
-            "project_name": project_name,
-            "stack": stack,
-            "stack_description": stack_plugin.description if stack_plugin else "",
-            "stack_structure": stack_plugin.get_structure() if stack_plugin else {},
-            "stack_commands": stack_plugin.commands if stack_plugin else {},
-            "init_command": stack_plugin.get_init_command() if stack_plugin else "",
-            "install_command": stack_plugin.get_install_command([]) if stack_plugin else "",
-        }
-        readme_content = self.template_engine.render("base/files/readme.md.j2", readme_context)
-        readme_path = output_dir / "README.md"
-        readme_path.write_text(readme_content, encoding="utf-8")
-        return str(readme_path)
-
     def _create_basic_project_files(
         self, output_dir: Path, project_name: str, stack: str, stack_plugin: StackPlugin | None
     ) -> list[str]:
         """
         Create basic project files (README, .gitignore, etc.) based on stack
-        
+
         Args:
             output_dir: Output directory
             project_name: Project name
             stack: Stack name
             stack_plugin: Optional StackPlugin instance
-            
+
         Returns:
             List of created file paths
         """
@@ -421,9 +389,7 @@ class ContextEngine:
                 if input_ref.startswith("TASK."):
                     ref_task_id = input_ref.replace("TASK.", "").replace(".md", "")
                     if ref_task_id not in tasks:
-                        errors.append(
-                            f"Task {task_id} depends on {ref_task_id} which doesn't exist"
-                        )
+                        errors.append(f"Task {task_id} depends on {ref_task_id} which doesn't exist")
 
         return {"valid": len(errors) == 0, "errors": errors}
 
@@ -452,9 +418,7 @@ class ContextEngine:
         """
         return self.validator.validate_all(prps_dir, prd_file)
 
-    def record_task_completion(
-        self, project_name: str, task_file: Path, success: bool, rework: bool = False
-    ) -> None:
+    def record_task_completion(self, project_name: str, task_file: Path, success: bool, rework: bool = False) -> None:
         """
         Record task completion and update cache/metrics (Feedback Loop)
 
@@ -521,9 +485,7 @@ class ContextEngine:
                 metrics = self.metrics_collector.load_metrics(project_name)
                 metrics.completed_tasks = getattr(metrics, "completed_tasks", 0) + 1
                 if metrics.total_tasks > 0:
-                    metrics.task_completion_rate = (
-                        metrics.completed_tasks / metrics.total_tasks * 100
-                    )
+                    metrics.task_completion_rate = metrics.completed_tasks / metrics.total_tasks * 100
                 self.metrics_collector.save_metrics(metrics)
 
             # Record category-specific rework for Confidence Adjustment
@@ -583,9 +545,7 @@ class ContextEngine:
                 file_size = len(content)
 
                 # Check if it's a core file
-                is_core = preserve_core and any(
-                    pattern in file_path.name for pattern in core_patterns
-                )
+                is_core = preserve_core and any(pattern in file_path.name for pattern in core_patterns)
 
                 # Estimate tokens (rough: 1 token ≈ 4 characters)
                 estimated_tokens = file_size // 4
@@ -619,9 +579,7 @@ class ContextEngine:
         if project_name and original_total_tokens > 0:
             tokens_saved = original_total_tokens - compressed_total_tokens
             if tokens_saved > 0:
-                self.metrics_collector.record_context_pruning(
-                    project_name, tokens_saved, compressed_total_tokens
-                )
+                self.metrics_collector.record_context_pruning(project_name, tokens_saved, compressed_total_tokens)
 
         return compressed
 
@@ -629,15 +587,13 @@ class ContextEngine:
         """Compress log content by keeping recent lines"""
         lines = content.split("\n")
         # Keep last 100 lines
-        return (
-            "\n".join(lines[-100:])
-            + f"\n\n[Compressed: {len(lines)} total lines, showing last 100]"
-        )
+        return "\n".join(lines[-100:]) + f"\n\n[Compressed: {len(lines)} total lines, showing last 100]"
 
     def _compress_json_metrics(self, content: str) -> str | None:
         """Compress JSON metrics by summarizing"""
         try:
             import json
+
             data = json.loads(content)
             if isinstance(data, dict):
                 summary = {
@@ -669,9 +625,7 @@ class ContextEngine:
                 compressed_lines.append(line)
 
         if len(compressed_lines) < len(lines):
-            compressed_lines.append(
-                f"\n\n[Compressed: {len(lines)} total lines, showing key sections]"
-            )
+            compressed_lines.append(f"\n\n[Compressed: {len(lines)} total lines, showing key sections]")
         return "\n".join(compressed_lines[:500])
 
     def _compress_file_content(self, content: str, file_path: Path) -> str:
@@ -694,8 +648,6 @@ class ContextEngine:
 
         # Strategy 4: Default truncation
         if len(content) > 5000:
-            return (
-                content[:5000] + f"\n\n[Compressed: {len(content)} total chars, showing first 5000]"
-            )
+            return content[:5000] + f"\n\n[Compressed: {len(content)} total chars, showing first 5000]"
 
         return content

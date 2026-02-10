@@ -15,7 +15,10 @@ from .generation import generate_prd, generate_prps, generate_tasks, init, valid
 
 @click.command(help="Display project status with progress and metrics.")
 @click.option(
-    "--project-dir", default=".", type=click.Path(exists=True, file_okay=False), help="Project directory."
+    "--project-dir",
+    default=".",
+    type=click.Path(exists=True, file_okay=False),
+    help="Project directory.",
 )
 @click.option("--json", is_flag=True, help="Output in JSON format.")
 @hybrid_ai_option()
@@ -51,7 +54,10 @@ def status(project_dir, json, enable_ai, embedding_model):
 
 @click.command(help="Display an interactive project checklist.")
 @click.option(
-    "--project-dir", default=".", type=click.Path(exists=True, file_okay=False), help="Project directory."
+    "--project-dir",
+    default=".",
+    type=click.Path(exists=True, file_okay=False),
+    help="Project directory.",
 )
 def checklist(project_dir):
     """Print a summarized checklist of phases."""
@@ -68,7 +74,10 @@ def checklist(project_dir):
 
 @click.command(help="Conversational assistant mode with guided steps.")
 @click.option(
-    "--project-dir", default=".", type=click.Path(exists=True, file_okay=False), help="Project directory."
+    "--project-dir",
+    default=".",
+    type=click.Path(exists=True, file_okay=False),
+    help="Project directory.",
 )
 @click.option(
     "--format",
@@ -94,9 +103,7 @@ def assist(project_dir, output_format, output_file, open_report, enable_ai, embe
     """Executa o assistente interativo com recomendações contextuais."""
     try:
         project_path = Path(project_dir).resolve()
-        data = STATUS_SERVICE.run_assistant_flow(
-            project_path, enable_ai=enable_ai, embedding_model=embedding_model
-        )
+        data = STATUS_SERVICE.run_assistant_flow(project_path, enable_ai=enable_ai, embedding_model=embedding_model)
 
         intro_context = {
             "assistant_context": data["assistant_context"],
@@ -111,9 +118,7 @@ def assist(project_dir, output_format, output_file, open_report, enable_ai, embe
             open_report = False
         if normalized_format == "html":
             intro = STATUS_SERVICE.render_assist_intro(intro_context, format="html")
-            target_path = (
-                Path(output_file).resolve() if output_file else project_path / "assist_report.html"
-            )
+            target_path = Path(output_file).resolve() if output_file else project_path / "assist_report.html"
             target_path.parent.mkdir(parents=True, exist_ok=True)
             target_path.write_text(intro, encoding="utf-8")
             click.echo(f"\n[OK] Relatório HTML salvo em {target_path}")
@@ -138,12 +143,7 @@ def assist(project_dir, output_format, output_file, open_report, enable_ai, embe
         assistant_context = data["assistant_context"]
         project_name = assistant_context.get("project_name") or project_path.name
         stack_hint = assistant_context.get("stack")
-        stack = (
-            stack_hint[0]
-            if isinstance(stack_hint, list) and stack_hint
-            else stack_hint
-            or "python-fastapi"
-        )
+        stack = stack_hint[0] if isinstance(stack_hint, list) and stack_hint else stack_hint or "python-fastapi"
 
         if not completion["init"]:
             click.echo("\nLet's start by initializing the project.")
@@ -263,9 +263,7 @@ def wizard(project_name, skip_init, enable_ai, embedding_model):
                 )
 
         if click.confirm("\nStep 2: Generate PRD?", default=True):
-            choice = click.prompt(
-                "Choose (1=interactive, 2=file)", type=click.Choice(["1", "2"]), default="1"
-            )
+            choice = click.prompt("Choose (1=interactive, 2=file)", type=click.Choice(["1", "2"]), default="1")
             if choice == "1":
                 ctx.invoke(
                     generate_prd,
@@ -298,9 +296,7 @@ def wizard(project_name, skip_init, enable_ai, embedding_model):
             )
 
         if click.confirm("\nStep 4: Generate Tasks?", default=True):
-            choice = click.prompt(
-                "Choose (1=PRPs, 2=User Story)", type=click.Choice(["1", "2"]), default="1"
-            )
+            choice = click.prompt("Choose (1=PRPs, 2=User Story)", type=click.Choice(["1", "2"]), default="1")
             if choice == "1":
                 ctx.invoke(
                     generate_tasks,
@@ -323,9 +319,7 @@ def wizard(project_name, skip_init, enable_ai, embedding_model):
                 )
 
         if click.confirm("\nStep 5: Validate PRPs and Tasks?", default=True):
-            prps_dir = click.prompt(
-                "PRPs directory", default="./prps", type=click.Path(exists=True, file_okay=False)
-            )
+            prps_dir = click.prompt("PRPs directory", default="./prps", type=click.Path(exists=True, file_okay=False))
             ctx.invoke(
                 validate,
                 prps_dir=prps_dir,

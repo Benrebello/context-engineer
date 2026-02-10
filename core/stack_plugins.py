@@ -37,8 +37,7 @@ class StackPlugin:
         """Get install command with dependencies"""
         install_cmd = self.commands.get("install", "")
         if deps:
-            deps_str = " ".join(deps)
-            return str(install_cmd)
+            return f"{install_cmd} {' '.join(deps)}"
         return str(install_cmd)
 
     def get_test_command(self) -> str:

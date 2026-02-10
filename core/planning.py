@@ -79,9 +79,7 @@ class EffortEstimator:
             category_complexity=category_complexity,
         )
 
-    def estimate_effort_points(
-        self, task: dict, stack: str = "python-fastapi", project_name: str | None = None
-    ) -> int:
+    def estimate_effort_points(self, task: dict, stack: str = "python-fastapi", project_name: str | None = None) -> int:
         """
         Estimate effort points for a task based on complexity and historical data
 
@@ -130,9 +128,7 @@ class EffortEstimator:
 
             # Category-specific confidence adjustment (ML-like local learning)
             if task_category:
-                category_adjustment = self._get_category_confidence_adjustment(
-                    project_name, task_category
-                )
+                category_adjustment = self._get_category_confidence_adjustment(project_name, task_category)
                 confidence_adjustment *= category_adjustment
 
             # General historical adjustment

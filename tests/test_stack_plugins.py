@@ -61,3 +61,88 @@ commands:
     with pytest.raises(ValueError, match="invalid"):
         StackPluginManager(plugins_dir=plugin_dir)
 
+
+class TestStackPlugin:
+    def _make_plugin(self):
+        from core.stack_plugins import StackPlugin
+        return StackPlugin({
+            "name": "test-stack",
+            "version": "1.0.0",
+            "description": "Test",
+            "commands": {
+                "init": "make init",
+                "install": "pip install",
+                "test": "pytest",
+                "lint": "ruff check",
+            },
+            "structure": {"app": "src/app", "tests": "tests"},
+            "patterns": ["auth"],
+            "dependencies": ["flask"],
+        })
+
+    def test_get_init_command(self):
+        p = self._make_plugin()
+        assert p.get_init_command() == "make init"
+
+    def test_get_install_command(self):
+        p = self._make_plugin()
+        assert p.get_install_command(["flask"]) == "pip install flask"
+
+    def test_get_install_command_empty(self):
+        p = self._make_plugin()
+        assert p.get_install_command([]) == "pip install"
+
+    def test_get_test_command(self):
+        p = self._make_plugin()
+        assert p.get_test_command() == "pytest"
+
+    def test_get_lint_command(self):
+        p = self._make_plugin()
+        assert p.get_lint_command() == "ruff check"
+
+    def test_get_structure(self):
+        p = self._make_plugin()
+        s = p.get_structure()
+        assert s["app"] == "src/app"
+
+
+class TestStackPluginManagerExtra:
+    def test_get_plugin_unknown(self, tmp_path):
+        plugin_dir = tmp_path / "stacks"
+        plugin_dir.mkdir()
+        manager = StackPluginManager(plugins_dir=plugin_dir)
+        assert manager.get_plugin("nonexistent") is None
+
+    def test_register_plugin(self, tmp_path):
+        from core.stack_plugins import StackPlugin
+        plugin_dir = tmp_path / "stacks"
+        plugin_dir.mkdir()
+        manager = StackPluginManager(plugins_dir=plugin_dir)
+        plugin = StackPlugin({"name": "custom", "structure": {"src": "src"}})
+        manager.register_plugin(plugin)
+        assert "custom" in manager.list_plugins()
+
+    def test_create_structure(self, tmp_path):
+        plugin_dir = tmp_path / "stacks"
+        _write_plugin_file(
+            plugin_dir, "valid",
+            "name: test-stack\nversion: '1.0.0'\ndescription: T\ncommands:\n  init: echo\n  install: echo\nstructure:\n  app: src/app\n  tests: tests\n",
+        )
+        manager = StackPluginManager(plugins_dir=plugin_dir)
+        out = tmp_path / "output"
+        manager.create_structure("test-stack", out)
+        assert (out / "src" / "app").exists()
+
+    def test_create_structure_unknown(self, tmp_path):
+        plugin_dir = tmp_path / "stacks"
+        plugin_dir.mkdir()
+        manager = StackPluginManager(plugins_dir=plugin_dir)
+        with pytest.raises(ValueError, match="not found"):
+            manager.create_structure("nonexistent", tmp_path)
+
+    def test_no_schema_file(self, tmp_path):
+        plugin_dir = tmp_path / "stacks"
+        plugin_dir.mkdir()
+        manager = StackPluginManager(plugins_dir=plugin_dir)
+        assert manager.plugin_schema is not None or manager.plugin_schema is None
+

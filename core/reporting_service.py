@@ -72,9 +72,7 @@ class ReportingService:
         roi_metrics = self.metrics_collector.get_roi_metrics(project_name)
         return metrics, analysis, roi_metrics
 
-    def load_global_metrics(
-        self, stack_filter: str | None = None
-    ) -> tuple[list[ProjectMetrics], dict]:
+    def load_global_metrics(self, stack_filter: str | None = None) -> tuple[list[ProjectMetrics], dict]:
         """
         Load aggregated metrics across projects.
 
@@ -86,9 +84,7 @@ class ReportingService:
         """
         all_metrics = self.metrics_collector.get_all_metrics()
         if stack_filter:
-            all_metrics = [
-                m for m in all_metrics if hasattr(m, "stack") and m.stack == stack_filter
-            ]
+            all_metrics = [m for m in all_metrics if hasattr(m, "stack") and m.stack == stack_filter]
         avg_metrics = self.metrics_collector.get_average_metrics()
         return all_metrics, avg_metrics
 

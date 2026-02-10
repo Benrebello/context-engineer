@@ -14,9 +14,7 @@ from core.project_analyzer import ProjectAnalyzer
 def _render_pattern_card(pattern: dict, show_content: bool = False) -> None:
     """Render basic info for a pattern in CLI output."""
     click.echo(f" • {pattern.get('pattern_id')} - {pattern.get('name', 'Unnamed')}")
-    click.echo(
-        f"   Category: {pattern.get('category', 'N/A')} | Complexity: {pattern.get('complexity', 'N/A')}"
-    )
+    click.echo(f"   Category: {pattern.get('category', 'N/A')} | Complexity: {pattern.get('complexity', 'N/A')}")
     click.echo(
         f"   Stack: {', '.join(pattern.get('stack', [])) or 'N/A'} | Tags: {', '.join(pattern.get('tags', [])) or 'N/A'}"
     )
@@ -138,9 +136,7 @@ def patterns_suggest(project_dir, limit, enable_ai, embedding_model):
             click.echo("No relevant patterns found for the current context.")
             return
 
-        click.echo(
-            f"Suggestions for stack {', '.join(pattern_context.get('stack', []))} (limited to {limit}):\n"
-        )
+        click.echo(f"Suggestions for stack {', '.join(pattern_context.get('stack', []))} (limited to {limit}):\n")
         for pattern in suggestions[:limit]:
             _render_pattern_card(pattern)
     except Exception as exc:  # pragma: no cover

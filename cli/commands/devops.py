@@ -8,7 +8,14 @@ from pathlib import Path
 
 import click
 
-from cli.shared import REPO_ROOT, _generate_git_hooks
+from cli.shared import (
+    REPO_ROOT,
+    _generate_git_hooks,
+    echo_error,
+    echo_info,
+    echo_success,
+    echo_warning,
+)
 from core.validators import PRPValidator
 
 
@@ -70,7 +77,8 @@ def install_hooks(project_dir, hard_gate):
     try:
         git_result = subprocess.run(
             ["git", "config", "remote.origin.url"],
-            check=False, cwd=project_path,
+            check=False,
+            cwd=project_path,
             capture_output=True,
             text=True,
         )
@@ -124,4 +132,144 @@ def mock_server(openapi_spec, port):
         raise click.Abort()
 
 
-__all__ = ["ci_bootstrap", "install_hooks", "mock_server"]
+@click.command(name="git-setup", help="Interactively configure Git for the project.")
+@click.option(
+    "--project-dir",
+    default=".",
+    type=click.Path(exists=True, file_okay=False),
+    help="Project directory (default: current directory).",
+)
+def git_setup(project_dir: str) -> None:
+    """Walk the user through Git initialization, remote, hooks, and branch setup."""
+    project_path = Path(project_dir).resolve()
+    git_dir = project_path / ".git"
+
+    # Step 1 — git init
+    if not git_dir.exists():
+        do_init = click.confirm("Git repository not found. Initialize one now?", default=True)
+        if do_init:
+            try:
+                subprocess.run(["git", "init"], cwd=project_path, check=True, capture_output=True)
+                echo_success("Git repository initialized.")
+            except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+                echo_error(f"Could not initialize Git: {exc}")
+                raise click.Abort()
+        else:
+            echo_warning("Skipping Git initialization.")
+            return
+    else:
+        echo_info("Git repository already initialized.")
+
+    # Step 2 — remote origin
+    try:
+        remote_result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        has_remote = remote_result.returncode == 0 and remote_result.stdout.strip()
+    except FileNotFoundError:
+        has_remote = False
+
+    if has_remote:
+        echo_info(f"Remote origin: {remote_result.stdout.strip()}")
+        change_remote = click.confirm("Change remote origin?", default=False)
+        if change_remote:
+            new_url = click.prompt("Enter new remote URL")
+            subprocess.run(
+                ["git", "remote", "set-url", "origin", new_url],
+                cwd=project_path,
+                check=True,
+                capture_output=True,
+            )
+            echo_success(f"Remote origin updated to {new_url}")
+    else:
+        set_remote = click.confirm("No remote origin configured. Add one now?", default=True)
+        if set_remote:
+            remote_url = click.prompt("Enter remote URL (e.g. https://github.com/user/repo.git)")
+            subprocess.run(
+                ["git", "remote", "add", "origin", remote_url],
+                cwd=project_path,
+                check=True,
+                capture_output=True,
+            )
+            echo_success(f"Remote origin set to {remote_url}")
+
+    # Step 3 — default branch
+    try:
+        branch_result = subprocess.run(
+            ["git", "branch", "--show-current"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        current_branch = branch_result.stdout.strip() if branch_result.returncode == 0 else ""
+    except FileNotFoundError:
+        current_branch = ""
+
+    if current_branch:
+        echo_info(f"Current branch: {current_branch}")
+    else:
+        echo_info("No commits yet — branch will be created on first commit.")
+
+    # Step 4 — user identity
+    try:
+        name_result = subprocess.run(
+            ["git", "config", "user.name"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        email_result = subprocess.run(
+            ["git", "config", "user.email"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        git_name = name_result.stdout.strip() if name_result.returncode == 0 else ""
+        git_email = email_result.stdout.strip() if email_result.returncode == 0 else ""
+    except FileNotFoundError:
+        git_name, git_email = "", ""
+
+    if git_name and git_email:
+        echo_info(f"Git user: {git_name} <{git_email}>")
+    else:
+        echo_warning("Git user identity not configured.")
+        new_name = click.prompt("Enter your name", default=git_name or "")
+        new_email = click.prompt("Enter your email", default=git_email or "")
+        if new_name:
+            subprocess.run(
+                ["git", "config", "user.name", new_name],
+                cwd=project_path,
+                check=True,
+                capture_output=True,
+            )
+        if new_email:
+            subprocess.run(
+                ["git", "config", "user.email", new_email],
+                cwd=project_path,
+                check=True,
+                capture_output=True,
+            )
+        echo_success("Git user identity configured.")
+
+    # Step 5 — hooks
+    setup_hooks = click.confirm("Install Context Engineer Git hooks?", default=True)
+    if setup_hooks:
+        hard_gate = click.confirm(
+            "Use Hard-Gate mode (blocks push on errors)? Default is Soft-Gate (advisory)",
+            default=False,
+        )
+        project_name = project_path.name
+        _generate_git_hooks(project_path, project_name, soft_gate=not hard_gate)
+        echo_success("Git hooks installed.")
+
+    echo_success("Git setup complete!")
+
+
+__all__ = ["ci_bootstrap", "git_setup", "install_hooks", "mock_server"]

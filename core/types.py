@@ -8,6 +8,7 @@ from typing import NotRequired, TypedDict
 
 class ProjectInitResult(TypedDict):
     """Result of project initialization"""
+
     success: bool
     created_directories: list[str]
     created_files: list[str]
@@ -17,6 +18,7 @@ class ProjectInitResult(TypedDict):
 
 class PRDGenerationResult(TypedDict):
     """Result of PRD generation"""
+
     success: bool
     prd_file: str
     prd_structured: str
@@ -24,6 +26,7 @@ class PRDGenerationResult(TypedDict):
 
 class PRPGenerationResult(TypedDict):
     """Result of PRP generation"""
+
     success: bool
     phases: list[str]
     prd_used: str
@@ -31,6 +34,7 @@ class PRPGenerationResult(TypedDict):
 
 class TaskGenerationResult(TypedDict):
     """Result of task generation"""
+
     success: bool
     tasks: list[str]
     tasks_dir: str
@@ -38,12 +42,14 @@ class TaskGenerationResult(TypedDict):
 
 class DependencyCheckResult(TypedDict):
     """Result of dependency check"""
+
     valid: bool
     errors: list[str]
 
 
 class ValidationResult(TypedDict):
     """Result of validation operation"""
+
     valid: bool
     errors: list[str]
     warnings: list[str]
@@ -53,6 +59,7 @@ class ValidationResult(TypedDict):
 
 class TraceabilityResult(TypedDict):
     """Result of traceability validation"""
+
     valid: bool
     errors: list[str]
     warnings: list[str]
@@ -62,6 +69,7 @@ class TraceabilityResult(TypedDict):
 
 class ContractValidationResult(TypedDict):
     """Result of contract validation"""
+
     success: bool
     errors: list[str]
     warnings: list[str]
@@ -70,6 +78,7 @@ class ContractValidationResult(TypedDict):
 
 class MockServerResult(TypedDict):
     """Result of mock server generation"""
+
     success: bool
     errors: list[str]
     warnings: list[str]
@@ -81,6 +90,7 @@ class MockServerResult(TypedDict):
 
 class PatternMetadata(TypedDict):
     """Metadata for code patterns"""
+
     name: str
     category: str
     complexity: str
@@ -91,6 +101,7 @@ class PatternMetadata(TypedDict):
 
 class ContextDict(TypedDict):
     """Context dictionary for pattern search"""
+
     stack: str | list[str]
     category: NotRequired[str]
     requirements: NotRequired[str | list[str]]
@@ -100,6 +111,7 @@ class ContextDict(TypedDict):
 
 class MetricsDict(TypedDict):
     """Project metrics dictionary"""
+
     project_name: str
     prp_generation_time_minutes: float
     total_phase_generations: int
@@ -126,6 +138,7 @@ class MetricsDict(TypedDict):
 
 class ROIMetrics(TypedDict):
     """ROI metrics for context pruning"""
+
     tokens_saved: int
     cost_saved: float
     time_saved_seconds: float
@@ -133,6 +146,7 @@ class ROIMetrics(TypedDict):
 
 class ConfigDict(TypedDict, total=False):
     """Project configuration dictionary"""
+
     project_name: str
     stack: str
     use_transformers: NotRequired[bool]
@@ -143,6 +157,7 @@ class ConfigDict(TypedDict, total=False):
 
 class StackFlags(TypedDict, total=False):
     """Stack feature flags"""
+
     is_python: bool
     is_node: bool
     is_go: bool
@@ -153,6 +168,7 @@ class StackFlags(TypedDict, total=False):
 
 class StackCommands(TypedDict, total=False):
     """Stack-specific commands"""
+
     init: NotRequired[str]
     install: NotRequired[str]
     dev: NotRequired[str]
@@ -163,6 +179,7 @@ class StackCommands(TypedDict, total=False):
 
 class AIGovernanceStatus(TypedDict):
     """AI governance status information"""
+
     transformers_available: bool
     current_model: str | None
     mode: str
@@ -170,10 +187,9 @@ class AIGovernanceStatus(TypedDict):
     requires_installation: bool
 
 
-
-
 class CompressedContext(TypedDict):
     """Compressed context mapping"""
+
     file_path: str
     compressed_content: str
     original_size: int
