@@ -1,0 +1,16 @@
+skills:
+  python:
+    path: .agent/skills/python-pro/SKILL.md
+    description: "Expert Python 3.12+ development, tooling (uv, ruff), and performance."
+  testing:
+    path: .agent/skills/python-testing-patterns/SKILL.md
+    description: "pytest patterns, TDD, fixtures, and mocking strategies."
+  docs:
+    path: .agent/skills/documentation-generation-doc-generate/SKILL.md
+    description: "Automated documentation generation and maintenance."
+  qa:
+    path: .agent/skills/lint-and-validate/SKILL.md
+    description: "Linting, static analysis, and code validation rules."
+  pr:
+    path: .agent/skills/git-pr-workflows-pr-enhance/SKILL.md
+    description: "Pull Request templates and best practices."

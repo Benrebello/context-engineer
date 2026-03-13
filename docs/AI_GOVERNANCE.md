@@ -22,6 +22,8 @@ This document details how the Context Engineer governance layer enforces traceab
 
 ### Diagram reference
 
+![Context Engineer Functional Flow](assets/context_engineer_flow.png)
+
 - Mermaid source: `docs/assets/context_engineer_flow.mmd`
 - PNG fallback: `docs/assets/context_engineer_flow.png`
 - Optional render command: `npx @mermaid-js/mermaid-cli -i docs/assets/context_engineer_flow.mmd -o docs/assets/context_engineer_flow.png`
@@ -43,6 +45,8 @@ This document details how the Context Engineer governance layer enforces traceab
 - Detalha como o Soft-Gate aplica governança sem travar o desenvolvimento.
 - Integra-se às trilhas `ce assist`, `ce status/checklist`, `ce wizard/autopilot/ci-bootstrap`.
 - Consulte `docs/assets/context_engineer_flow.mmd` (ou `context_engineer_flow.png`) para visualizar o fluxo completo.
+
+![Fluxo Funcional](assets/context_engineer_flow.png)
 
 **Status**: **Sistema de Soft-Gate Implementado**
 

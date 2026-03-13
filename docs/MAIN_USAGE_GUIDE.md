@@ -22,6 +22,9 @@
 | Conversational assistant | `ce assist --format text|html --open` | Reads project health, suggests patterns/cache entries and optionally invokes `ce init`, `ce generate-prd`, `ce generate-prps`, `ce generate-tasks`. |
 | Review / inspection | `ce status`, `ce checklist`, `ce doctor`, `ce ai-governance status` | Read-only dashboards plus AI/ROI/git-hook diagnostics for governance ceremonies and leadership reviews. |
 | Guided / automation | `ce wizard`, `ce autopilot`, `ce ci-bootstrap` | Wizard confirms each phase interactively, Autopilot resumes unattended pipelines, CI bootstrap wires `ce validate` + `ce report` into GitHub Actions. |
+| Context & planning | `ce discuss <phase>`, `ce verify <phase>` | Capture decisions before planning; run verification/UAT after execution. |
+| Project management | `ce state status`, `ce health [--repair]`, `ce session pause/resume` | Track state, diagnose project integrity, manage work sessions. |
+| Git workflow | `ce commit task <id> <msg>`, `ce commit map` | Atomic commits per task and commit-to-task traceability. |
 
 ### Step-by-step (Full Flow)
 1. **Step 0 – Setup**: run `ce ide sync --project-dir .` (fallback: copy `IDE-rules` → `.ide-rules`), configure rules/stack, ensure Python 3.11+ available.
@@ -37,6 +40,8 @@
 
 ### Assets & references
 - Diagram: `docs/assets/context_engineer_flow.mmd` (or `context_engineer_flow.png`).
+
+![Functional Flow Diagram](assets/context_engineer_flow.png)
 - Quick reference: `docs/QUICK_REFERENCE.md`.
 - Multi-IDE guidance: `docs/MULTI_IDE_USAGE_GUIDE.md`.
 - AI governance details: `docs/AI_GOVERNANCE.md`.
@@ -184,6 +189,9 @@ Execute a task descrita acima.
 | **Assistente conversacional** | `ce assist --format text`, `ce assist --format html --open` | Executa `ProjectStatusService` + `ProjectAnalyzer`, identifica lacunas de PRD/PRPs/Tasks, sugere padrões/cache e pode disparar `ce init`, `ce generate-prd`, `ce generate-prps`, `ce generate-tasks` na própria sessão. | Pareamentos, onboarding de novos devs, momentos de coaching dentro do terminal. |
 | **Revisão/inspeção** | `ce status`, `ce checklist`, `ce doctor`, `ce ai-governance status` | Dashboards somente leitura com progresso das fases F0–F11, KPIs de governança, ROI de Context Pruning e status dos Git hooks. |
 | **Automação completa** | `ce wizard`, `ce autopilot`, `ce ci-bootstrap` | Wizard confirma cada passo; Autopilot retoma pipelines sem supervisão; CI bootstrap integra `ce validate` + `ce report`. | Workshops guiados, execuções noturnas, guardrails de CI/CD reproduzíveis. |
+| **Contexto e planejamento** | `ce discuss <fase>`, `ce verify <fase>` | Captura decisões antes do planejamento; executa verificação/UAT após execução. | Antes de cada fase de implementação. |
+| **Gerenciamento de projeto** | `ce state status`, `ce health [--repair]`, `ce session pause/resume` | Rastreamento de estado, diagnóstico de integridade, gerenciamento de sessões. | Monitoramento contínuo. |
+| **Fluxo Git** | `ce commit task <id> <msg>`, `ce commit map` | Commits atômicos por tarefa e rastreabilidade commit-tarefa. | Durante implementação. |
 
 > Todas as trilhas respeitam `--ai / --no-ai` e as preferências de embedding definidas pelo AI Governance Service, mantendo buscas semânticas e dicas de cache alinhadas à política do projeto.
 
@@ -532,6 +540,8 @@ seu-projeto/
 ## Arquitetura Visual
 
 ![Visual Architecture Diagram](assets/visual_architecture.svg)
+
+![Functional Flow Diagram](assets/context_engineer_flow.png)
 
 ### Componentes Principais
 

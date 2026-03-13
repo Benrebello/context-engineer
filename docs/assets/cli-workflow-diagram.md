@@ -15,7 +15,8 @@ graph TD
     D -->|No| E[ce generate-prd]
     D -->|Yes| F{PRPs Exist?}
     E --> F
-    F -->|No| G[ce generate-prps]
+    F -->|No| F1[ce discuss phase]
+    F1 --> G[ce generate-prps]
     F -->|Yes| H{Tasks Exist?}
     G --> H
     H -->|No| I[ce generate-tasks]
@@ -25,7 +26,9 @@ graph TD
     K -->|Yes| L[Implementation]
     K -->|No| M[Fix Issues]
     M --> J
-    L --> N[End]
+    L --> L1[ce commit task]
+    L1 --> L2[ce verify phase]
+    L2 --> N[End]
 ```
 
 ---
@@ -271,6 +274,111 @@ graph TD
 
 ---
 
+## Context Capture Flow
+
+```mermaid
+graph TD
+    A["ce discuss phase_id"] --> B[Load PRP Data]
+    B --> C{PRP Found?}
+    C -->|No| D[Use Default Context]
+    C -->|Yes| E[Analyze Phase]
+    D --> E
+    E --> F{Gray Areas Found?}
+    F -->|No| G[Generate Empty CONTEXT.md]
+    F -->|Yes| H{Batch Mode?}
+    H -->|Yes| I[Show All Questions]
+    H -->|No| J[Interactive One-by-One]
+    I --> K[Collect Answers]
+    J --> K
+    K --> L[Generate CONTEXT.md]
+    G --> M[Done]
+    L --> M
+```
+
+---
+
+## Health Check & Repair Flow
+
+```mermaid
+graph TD
+    A["ce health"] --> B[Run Full Check]
+    B --> C[Check Required Files]
+    C --> D[Check STATE.json Integrity]
+    D --> E[Check Constitution]
+    E --> F[Check Git Health]
+    F --> G[Check Planning Dir]
+    G --> H{Issues Found?}
+    H -->|No| I["All Checks Passed"]
+    H -->|Yes| J{--repair flag?}
+    J -->|No| K[Display Report]
+    J -->|Yes| L[Auto-Fix Fixable Issues]
+    L --> M[Display Actions Taken]
+    K --> N[End]
+    M --> N
+    I --> N
+```
+
+---
+
+## Session Management Flow
+
+```mermaid
+graph TD
+    A{Session Command} -->|pause| B[Save Current State]
+    A -->|resume| C[Load Saved State]
+    A -->|status| D[Display Session Info]
+    B --> E[Read STATE.json]
+    E --> F[Create SESSION.json]
+    F --> G["Display: Session Paused"]
+    C --> H{SESSION.json Exists?}
+    H -->|No| I[Error: No Session]
+    H -->|Yes| J[Restore Context]
+    J --> K["Display: Session Resumed"]
+    D --> L{SESSION.json Exists?}
+    L -->|No| M["No Active Session"]
+    L -->|Yes| N[Show Session Details]
+```
+
+---
+
+## Wave-Based Task Execution Flow
+
+```mermaid
+graph TD
+    A[WaveExecutor] --> B[Parse Tasks]
+    B --> C[Build Dependency Graph]
+    C --> D[Topological Sort]
+    D --> E{Circular Deps?}
+    E -->|Yes| F[Error: Circular Dependency]
+    E -->|No| G[Build Waves]
+    G --> H["Wave 1: No Dependencies"]
+    H --> I["Wave 2: Depends on Wave 1"]
+    I --> J["Wave N: Final Tasks"]
+    H --> K[Execute in Parallel]
+    I --> K
+    J --> K
+    K --> L[Return Execution Plan]
+```
+
+---
+
+## Verification & UAT Flow
+
+```mermaid
+graph TD
+    A["ce verify phase_id"] --> B[Load PRP Data]
+    B --> C{PRP Found?}
+    C -->|No| D[Error: No PRP]
+    C -->|Yes| E[Extract Deliverables]
+    E --> F[Identify Test Scenarios]
+    F --> G[Generate UAT Checklist]
+    G --> H[Write UAT.md]
+    H --> I[Display Summary]
+    I --> J[End]
+```
+
+---
+
 ## Usage Instructions
 
 To render these diagrams:
@@ -307,6 +415,6 @@ To render these diagrams:
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** 2026-01-07  
+**Version:** 1.2  
+**Last Updated:** 2026-03-13  
 **Maintainer:** Context Engineer Team

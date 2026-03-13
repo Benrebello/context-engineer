@@ -23,6 +23,7 @@ from cli.shared import (
     normalize_embedding_model,
     save_project_config,
     validate_command_prerequisites,
+    load_active_skills,
 )
 from core.i18n import get_i18n
 from core.metrics import MetricsCollector
@@ -222,6 +223,10 @@ def generate_prd(
             for i, req in enumerate(prd_data["requisitos_funcionais"], 1):
                 prd_content += f"{i}. {req}\n"
 
+            skills_context = load_active_skills()
+            if skills_context:
+                prd_content += f"\n\n# Agent Skills Guidelines\n{skills_context}"
+
             temp_file = save_interactive_input(prd_content, "prd_input.md", output_path)
             input_file = temp_file
 
@@ -233,7 +238,7 @@ def generate_prd(
             click.echo("\nRun without --preview to actually generate the files.")
             return
 
-        engine.generate_prd(input_file=Path(input_file), output_dir=output_path)
+        engine.generate_prd(_input_file=Path(input_file), output_dir=output_path)
         echo_success(f"PRD generated at {output}")
         click.echo("   - PRD.md")
         click.echo("   - prd_structured.json")
@@ -418,6 +423,10 @@ def generate_tasks(prps_dir, output, interactive, from_us, enable_ai, embedding_
 """
             for criterio in us_data["criterios_aceitacao"]:
                 us_content += f"- {criterio}\n"
+
+            skills_context = load_active_skills()
+            if skills_context:
+                us_content += f"\n\n# Agent Skills Guidelines\n{skills_context}"
 
             us_file = save_interactive_input(us_content, "user_story_input.md", output_path)
             click.echo(f"\n[OK] User Story saved at: {us_file}")

@@ -141,7 +141,43 @@ class TaskGenerator:
             "step_definitions": self._generate_step_definitions(userstory),
             "validation": self._generate_validation(userstory),
             "acceptance_criteria": userstory["acceptance_criteria"],
+            "xml_representation": self.generate_xml_task(userstory, prps),
         }
+
+    def generate_xml_task(self, userstory: dict, prps: list[dict]) -> str:
+        """
+        Generate XML representation of the task for style precision
+
+        Args:
+            userstory: UserStory dictionary
+            prps: List of PRP dictionaries
+
+        Returns:
+            XML string
+        """
+        task_id = userstory.get("id", "TASK.US-XXX")
+        name = userstory.get("title", "Untitled Task")
+        files = ", ".join(self._determine_target_files(userstory))
+        action = f"Implement as per User Story: {userstory.get('as_a', '')} {userstory.get('i_want', '')} {userstory.get('so_that', '')}."
+        verify = " && ".join([v.get("command", "") for v in self._generate_validation(userstory)])
+        done = " && ".join(userstory.get("acceptance_criteria", []))
+
+        return (
+            f'<task type="auto" id="{task_id}">\n'
+            f'  <name>{name}</name>\n'
+            f'  <files>{files}</files>\n'
+            f'  <action>\n'
+            f'    {action}\n'
+            f'  </action>\n'
+            f'  <verify>{verify}</verify>\n'
+            f'  <done>{done}</done>\n'
+            f'</task>'
+        )
+
+    def _determine_target_files(self, userstory: dict) -> list[str]:
+        """Guess target files based on UserStory content"""
+        # Placeholder for more sophisticated logic
+        return ["src/domain/entities/", "src/application/use_cases/"]
 
     def _determine_inputs(self, userstory: dict, prps: list[dict]) -> list[str]:
         """Determine required inputs based on UserStory"""

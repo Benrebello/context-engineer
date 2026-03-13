@@ -1,0 +1,12 @@
+# Agentic Skills Integration
+# Always check `.agent/skills.yaml` to see available specialized skills.
+# If the user asks for Python tasks, testing, or documentation, READ the corresponding SKILL.md file in `.agent/skills/` BEFORE proceeding.
+
+- Python Development: Read `.agent/skills/python-pro/SKILL.md`
+- Testing/QA: Read `.agent/skills/python-testing-patterns/SKILL.md` or `.agent/skills/lint-and-validate/SKILL.md`
+- Documentation: Read `.agent/skills/documentation-generation-doc-generate/SKILL.md`
+- PRs: Read `.agent/skills/git-pr-workflows-pr-enhance/SKILL.md`
+
+# CLI usage
+When running `context-engineer` CLI, prefer using the `--skill` flag to inject context:
+`ce <command> --skill <skill_alias>`

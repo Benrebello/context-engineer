@@ -1,0 +1,15 @@
+{
+  "include": ["cli", "core", "src", "tests"],
+  "exclude": [".venv", ".cache", ".mypy_cache", ".ruff_cache", "htmlcov", "**/__pycache__"],
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.11",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["."]
+    }
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "none"
+}

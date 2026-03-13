@@ -97,6 +97,8 @@ class GitService:
                     check=True,
                 )
                 lines = result.stdout.splitlines()
+                if not lines:
+                    return
                 commit_id = lines[0].strip()
                 message_lines: list[str] = []
                 idx = 1
@@ -104,7 +106,15 @@ class GitService:
                     message_lines.append(lines[idx])
                     idx += 1
                 message = "\n".join(message_lines).strip()
-                changed_files = [line.strip() for line in lines[idx + 1 :] if line.strip()]
+                # Use explicit slice values to help type checker and avoid empty lines
+                # Linter fix: Avoid slicing as it triggers an error in this environment
+                changed_files = [
+                    lines[i].strip() 
+                    for i in range(idx + 1, len(lines)) 
+                    if lines[i].strip()
+                ]
+                # Filter out empty strings if any
+                changed_files = [f for f in changed_files if f]
 
                 referenced_tasks: set[str] = set()
                 referenced_tasks.update(self.extract_task_ids(message))
@@ -138,7 +148,10 @@ class GitService:
                 for line in status_result.stdout.splitlines():
                     if not line.strip():
                         continue
-                    file_path = line[3:].strip()
+                    if len(line) < 4:
+                        continue
+                    # Linter fix: Avoid slicing for str as it triggers an error
+                    file_path = "".join([line[i] for i in range(3, len(line))]).strip()
                     task_ids = self.extract_task_ids(file_path) or {"UNMAPPED"}
                     for task_id in task_ids:
                         entry = ensure_task(task_id)
@@ -153,6 +166,101 @@ class GitService:
             "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "commit_mapping": commit_mapping,
         }
+
+    def commit_task(self, task_id: str, message: str, files: list[str] | None = None) -> str:
+        """
+        Perform an atomic commit for a specific task.
+
+        Args:
+            task_id: The identifier of the task (e.g., FR-001).
+            message: The commit message.
+            files: List of specific files to commit. If None, commits all staged changes.
+
+        Returns:
+            The commit hash.
+        """
+        try:
+            # 1. Add files
+            if files:
+                subprocess.run(["git", "add"] + files, cwd=self.project_dir, check=True)
+            else:
+                subprocess.run(["git", "add", "."], cwd=self.project_dir, check=True)
+
+            # 2. Format message: "task_id: message"
+            full_message = f"{task_id}: {message}"
+            
+            # 3. Commit
+            subprocess.run(["git", "commit", "-m", full_message], cwd=self.project_dir, check=True)
+
+            # 4. Get hash
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"], 
+                cwd=self.project_dir, 
+                capture_output=True, 
+                text=True, 
+                check=True
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            self.warning_handler(f"[ERRO] Falha ao realizar commit atômico: {e}")
+            raise e
+
+    def create_phase_branch(
+        self, phase_id: str, slug: str = "", template: str = "ce/phase-{phase}-{slug}"
+    ) -> str:
+        """
+        Create a git branch for a specific phase.
+
+        Args:
+            phase_id: Phase identifier (e.g., "01").
+            slug: Short description slug (e.g., "auth-layer").
+            template: Branch name template.
+
+        Returns:
+            The created branch name.
+        """
+        branch_name = template.format(phase=phase_id, slug=slug or phase_id)
+        try:
+            subprocess.run(
+                ["git", "checkout", "-b", branch_name],
+                cwd=self.project_dir,
+                check=True,
+            )
+            return branch_name
+        except subprocess.CalledProcessError as e:
+            self.warning_handler(f"[ERRO] Falha ao criar branch: {e}")
+            raise e
+
+    def merge_phase_branch(self, branch_name: str, squash: bool = False) -> None:
+        """
+        Merge a phase branch back into the main branch.
+
+        Args:
+            branch_name: Branch to merge.
+            squash: Whether to squash all commits into one.
+        """
+        try:
+            # Switch to main branch
+            subprocess.run(
+                ["git", "checkout", "main"],
+                cwd=self.project_dir,
+                check=True,
+            )
+            merge_args = ["git", "merge"]
+            if squash:
+                merge_args.append("--squash")
+            merge_args.append(branch_name)
+            subprocess.run(merge_args, cwd=self.project_dir, check=True)
+
+            if squash:
+                subprocess.run(
+                    ["git", "commit", "-m", f"Squash merge: {branch_name}"],
+                    cwd=self.project_dir,
+                    check=True,
+                )
+        except subprocess.CalledProcessError as e:
+            self.warning_handler(f"[ERRO] Falha ao fazer merge da branch: {e}")
+            raise e
 
 
 class GitHookManager:
@@ -224,7 +332,7 @@ fi
 COMMITS_FILE="$PROJECT_DIR/commits.json"
 COMMITS_ARGS=""
 echo "Gerando commits.json para rastreabilidade inversa..."
-if {command} generate-commit-map --project-dir "$PROJECT_DIR" --output "$COMMITS_FILE" >/dev/null 2>&1; then
+if {command} commit map --project-dir "$PROJECT_DIR" --output "$COMMITS_FILE" >/dev/null 2>&1; then
  if [ -f "$COMMITS_FILE" ]; then
  COMMITS_ARGS="--commits-json \\"$COMMITS_FILE\\""
  fi
@@ -334,7 +442,7 @@ fi
 COMMITS_FILE="$PROJECT_DIR/commits.json"
 COMMITS_ARGS=""
 echo "Gerando commits.json para rastreabilidade inversa..."
-if {command} generate-commit-map --project-dir "$PROJECT_DIR" --output "$COMMITS_FILE" >/dev/null 2>&1; then
+if {command} commit map --project-dir "$PROJECT_DIR" --output "$COMMITS_FILE" >/dev/null 2>&1; then
  if [ -f "$COMMITS_FILE" ]; then
  COMMITS_ARGS="--commits-json \\"$COMMITS_FILE\\""
  fi

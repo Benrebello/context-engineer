@@ -7,7 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] - 1.1.0
+## [1.2.0] - 2026-03-13
+
+### 🚀 Added
+
+#### Context Engineering Layer
+- **Context Capture** (`ce discuss`): Identifies gray areas in PRP phases and captures user decisions before planning starts → generates `CONTEXT.md` (`core/context_capture.py`, `cli/commands/discuss.py`)
+- **Verification & UAT** (`ce verify`): Extracts deliverables from PRPs and generates UAT checklists after execution → produces `UAT.md` (`core/verification.py`, `cli/commands/verify.py`)
+- **Research Phase** (`core/research.py`): Automated `RESEARCH.md` generation to enrich PRP planning with external context
+- **Project Constitution** (`core/constitution.py`): `PROJECT_CONSTITUTION.md` — defines principles, tech stack, and development guidelines
+
+#### Project Management
+- **Execution State** (`ce state status|update`): Real-time task tracking via `STATE.json` + human-readable `STATE.md` (`core/progress.py`, `cli/commands/state.py`)
+- **Health Checks** (`ce health [--repair]`): Diagnostic engine for project integrity with auto-repair of common issues (`core/health.py`, `cli/commands/health_cmd.py`)
+- **Session Management** (`ce session pause|resume|status`): Pause/resume development sessions with context preservation (`cli/commands/session.py`)
+
+#### Wave-Based Execution
+- **Wave Executor** (`core/wave_executor.py`): Dependency-aware parallel task execution — topological sort organizes tasks into sequential waves with intra-wave parallelism
+
+#### Git Workflow
+- **Atomic Commits** (`ce commit task <id> <msg>`): Scoped commits per task with traceability metadata (`core/git_service.py`, `cli/commands/commit.py`)
+- **Commit Map** (`ce commit map`): Generate JSON mapping of commits → tasks → PRPs for full traceability
+- **Phase Branching** (`core/git_service.py`): Branching strategies with create/merge phase branches
+
+### 🔧 Changed
+
+#### CLI Registration
+- All new commands registered in `cli/main.py` via Click groups: `commit`, `state`, `session`, `discuss`, `verify`, `health`
+
+#### Documentation (Major Update)
+- **README.md**: Added 3 new interaction tracks and 10 new features (EN + PT)
+- **CLI_COMMANDS.md**: 7 new commands documented with full bilingual reference; workflow expanded from 8 → 12 steps; version bumped to 1.2.0
+- **QUICK_REFERENCE.md**: 3 new command tracks in both language tables
+- **INDEX.md**: New "Context Engineering Commands" table (10 commands) + expanded folder structure
+- **FRAMEWORK_OVERVIEW.md**: Version 1.2.0, 7 new core modules, 6 new CLI files, 7 new components in architecture table
+- **MAIN_USAGE_GUIDE.md**: 3 new interaction tracks (EN + PT)
+- **AI_GOVERNANCE.md**: Embedded flow diagram inline
+
+#### Visual Assets
+- **`context_engineer_flow.mmd`**: Added 2 new subgraphs (Context Engineering Layer with 7 components, Git Workflow with 3 components); fixed Mermaid syntax for CLI compatibility
+- **`context_engineer_flow.png`**: Regenerated with all 11 subgraphs
+- **`visual_architecture.svg`**: Complete redesign — 9 component blocks across 3 layers with color-coded legend (blue=core, green=new, yellow=templates, purple=git)
+- **`cli-workflow-diagram.md`**: 5 new Mermaid diagrams: Context Capture, Health Check, Session Management, Wave Execution, Verification/UAT; pipeline updated with `ce discuss` + `ce verify`; version 1.2
+
+#### Image Embeds
+- Embedded `visual_architecture.svg` and `context_engineer_flow.png` visually inline in 7 docs (README, FRAMEWORK_OVERVIEW, QUICK_REFERENCE, INDEX, MAIN_USAGE_GUIDE, AI_GOVERNANCE)
+
+### 🐛 Fixed
+
+- **`core/health.py`**: Removed broken imports (`core.progress.ExecutionState`, `core.constitution.Constitution`) — replaced with direct file operations for `STATE.json` and `PROJECT_CONSTITUTION.md` repair
+- **Mermaid `.mmd` syntax**: Replaced em-dash (`—`), `<br/>`, `&`, `•`, `°`, `@` in labels with parser-compatible alternatives; quoted all node labels for robust rendering
+
+---
+
+## [1.1.0] - 2026-02-01
 
 ### 🚀 Added
 
@@ -152,6 +205,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upgrade Instructions
 
+### From 1.1.x to 1.2.0
+
+```bash
+# 1. Update package
+pip install --upgrade context-engineer
+
+# 2. Initialize new project state (optional)
+ce health --repair
+
+# 3. Verify new commands work
+ce health
+ce state status
+ce session status
+
+# 4. Regenerate flow diagram (requires Node.js)
+npx -y @mermaid-js/mermaid-cli -i docs/assets/context_engineer_flow.mmd -o docs/assets/context_engineer_flow.png
+```
+
+> **No breaking changes** from 1.1.x — all new features are additive. Existing workflows continue to work unchanged.
+
 ### From 1.0.x to 1.1.0
 
 ```bash
@@ -178,16 +251,16 @@ mypy core cli
 
 ## Contributors
 
-- Benjamin Rebello (@benjamin-rebello) - Core development and optimizations
+- Benjamin Rebello (@benrebello) - Core development and optimizations
 
 ---
 
 ## Links
 
-- [Repository](https://github.com/your-org/context-engineer)
+- [Repository](https://github.com/Benrebello/context-engineer)
 - [Documentation](docs/INDEX.md)
 - [Migration Guide](MIGRATION_GUIDE.md)
-- [Issue Tracker](https://github.com/your-org/context-engineer/issues)
+- [Issue Tracker](https://github.com/Benrebello/context-engineer/issues)
 
 ---
 

@@ -1,23 +1,23 @@
-%% Context Engineer — functional flow and component correlations
-%% Reflects project structure as of v1.0.0
+%% Context Engineer - functional flow and component correlations
+%% Reflects project structure as of v1.2.0
 flowchart TD
 
-    %% ── Main Pipeline ──────────────────────────────────────────────
-    A[Idea Intake<br/>Product Vision] -->|"IDE @Agente_PRD_360 / ce generate-prd"| B[PRD Generation<br/>PRD.md + prd_structured.json]
-    B -->|"IDE @Agente_PRP / ce generate-prps"| C[PRP Planning<br/>Phases F0–F9]
-    C -->|"IDE @Agente_Task / ce generate-tasks"| D[Task Authoring<br/>TASK.FR-xxx.md/.json]
-    D -->|Executable Tasks| E[Implementation & Tests<br/>Developers + IDE AI]
-    E -->|Artifacts + Commits| F[Validation & Governance<br/>ce validate • Git Hooks]
-    F -->|Metrics Snapshot| G[Metrics & Dashboards<br/>ce report • ce status]
+    %% Main Pipeline
+    A["Idea Intake\nProduct Vision"] -->|"ce generate-prd"| B["PRD Generation\nPRD.md + prd_structured.json"]
+    B -->|"ce discuss + ce generate-prps"| C["PRP Planning\nPhases F0-F9"]
+    C -->|"ce generate-tasks"| D["Task Authoring\nTASK.FR-xxx.md/.json"]
+    D -->|"Wave Executor"| E["Implementation and Tests\nDevelopers + IDE AI"]
+    E -->|"ce commit task"| F["Validation and Governance\nce validate + ce verify + Git Hooks"]
+    F -->|"Metrics Snapshot"| G["Metrics and Dashboards\nce report + ce status + ce health"]
 
-    %% ── Core Engine ────────────────────────────────────────────────
-    subgraph Core Engine — core/engine.py
-        ENG[ContextEngine<br/>Orchestrator]
-        TPL[TemplateEngine<br/>Jinja2 Templates]
-        PAT[PatternLibrary<br/>Reusable Patterns]
-        STK[StackPluginManager<br/>YAML Stack Plugins]
-        VAL[PRPValidator<br/>Cross-Validation]
-        EST[EffortEstimator<br/>Story Points + Confidence Adj.]
+    %% Core Engine
+    subgraph CoreEngine["Core Engine - core/engine.py"]
+        ENG["ContextEngine\nOrchestrator"]
+        TPL["TemplateEngine\nJinja2 Templates"]
+        PAT["PatternLibrary\nReusable Patterns"]
+        STK["StackPluginManager\nYAML Stack Plugins"]
+        VAL["PRPValidator\nCross-Validation"]
+        EST["EffortEstimator\nStory Points"]
         ENG --> TPL
         ENG --> PAT
         ENG --> STK
@@ -30,13 +30,13 @@ flowchart TD
     D --> ENG
     F --> VAL
 
-    %% ── Intelligence Layer ─────────────────────────────────────────
-    subgraph Intelligence Layer — core/cache.py
-        CACHE[IntelligenceCache<br/>SQLite + Embeddings]
-        EMB[Embedding Cache<br/>Binary np.float32]
-        TOK[Token Usage Tracker<br/>record_token_usage]
-        SEM["Semantic Search<br/>(--ai mode)"]
-        LEV["Levenshtein Search<br/>(--no-ai mode)"]
+    %% Intelligence Layer
+    subgraph IntelLayer["Intelligence Layer - core/cache.py"]
+        CACHE["IntelligenceCache\nSQLite + Embeddings"]
+        EMB["Embedding Cache\nBinary np.float32"]
+        TOK["Token Usage Tracker\nrecord_token_usage"]
+        SEM["Semantic Search\nai mode"]
+        LEV["Levenshtein Search\nno-ai mode"]
         CACHE --> EMB
         CACHE --> TOK
         CACHE --> SEM
@@ -46,11 +46,11 @@ flowchart TD
     ENG --> CACHE
     PAT --> CACHE
 
-    %% ── AI Governance ──────────────────────────────────────────────
-    subgraph AI Governance — Soft-Gate
-        GOV[AIGovernanceService<br/>Preference Resolution]
-        LLM[LLMProvider<br/>8 Providers + CredentialVault]
-        HOOKS[GitHookManager<br/>pre-push Soft/Hard Gate]
+    %% AI Governance
+    subgraph AIGov["AI Governance - Soft-Gate"]
+        GOV["AIGovernanceService\nPreference Resolution"]
+        LLM["LLMProvider\n8 Providers + CredentialVault"]
+        HOOKS["GitHookManager\npre-push Soft/Hard Gate"]
         GOV --> LLM
         GOV --> HOOKS
     end
@@ -58,11 +58,11 @@ flowchart TD
     ENG --> GOV
     F --> HOOKS
 
-    %% ── Metrics & ROI ──────────────────────────────────────────────
-    subgraph Metrics & ROI — core/metrics.py
-        MET[MetricsCollector<br/>ProjectMetrics JSON]
-        ROI[ROI Tracking<br/>tokens_saved / cost_usd]
-        RWK[Category Rework Rates<br/>Confidence Adjustment Feed]
+    %% Metrics and ROI
+    subgraph MetricsROI["Metrics and ROI - core/metrics.py"]
+        MET["MetricsCollector\nProjectMetrics JSON"]
+        ROI["ROI Tracking\ntokens_saved / cost_usd"]
+        RWK["Category Rework Rates\nConfidence Adjustment Feed"]
         MET --> ROI
         MET --> RWK
     end
@@ -72,27 +72,27 @@ flowchart TD
     RWK --> EST
     G --> MET
 
-    %% ── Conversational Terminal Modes ──────────────────────────────
-    subgraph Conversational Terminal Modes
-        H[ce assist<br/>Conversational Assistant]
-        I[ProjectStatusService<br/>core/project_status_service.py]
-        J[ProjectAnalyzer<br/>core/project_analyzer.py]
-        L[ce status • ce checklist<br/>Review / Inspection Mode]
-        WIZ[ce wizard<br/>Guided Step-by-Step]
+    %% Conversational Terminal Modes
+    subgraph TermModes["Conversational Terminal Modes"]
+        H["ce assist\nConversational Assistant"]
+        I["ProjectStatusService"]
+        J["ProjectAnalyzer"]
+        L["ce status + ce checklist\nReview / Inspection Mode"]
+        WIZ["ce wizard\nGuided Step-by-Step"]
         H --> I --> J
         J --> CACHE
         J --> L
         WIZ --> I
     end
 
-    G -->|Continuous Insights| H
-    G -->|Completion Overview| L
+    G -->|"Continuous Insights"| H
+    G -->|"Completion Overview"| L
 
-    %% ── Automation Tracks ──────────────────────────────────────────
-    subgraph Automation Tracks
-        M[ce autopilot<br/>AutopilotService]
-        N[ce ci-bootstrap<br/>GitHub Actions Workflow]
-        QS[ce quickstart<br/>5-min Guided Setup]
+    %% Automation Tracks
+    subgraph AutoTracks["Automation Tracks"]
+        M["ce autopilot\nAutopilotService"]
+        N["ce ci-bootstrap\nGitHub Actions Workflow"]
+        QS["ce quickstart\n5-min Guided Setup"]
         M --> B
         M --> C
         M --> D
@@ -101,14 +101,14 @@ flowchart TD
         QS --> ENG
     end
 
-    %% ── IDE Integration ────────────────────────────────────────────
-    subgraph IDE Integration — IDE-rules/
-        AG1["@Agente_PRD_360.md<br/>360° PRD Agent"]
-        AG2["@Agente_PRP_Orquestrador.md<br/>PRP Orchestrator"]
-        AG3["@Agente_Task_Direto.md<br/>Direct Task Agent"]
-        AG4["@Agente_UserStory_Refiner.md<br/>US Refiner"]
-        RULES["GLOBAL_ENGINEERING_RULES.json<br/>+ PROJECT_STANDARDS.md<br/>+ AGENTS.md"]
-        WF["Workflows 00–11<br/>Executable Runbooks"]
+    %% IDE Integration
+    subgraph IDEInt["IDE Integration - IDE-rules"]
+        AG1["Agente_PRD_360.md\n360 PRD Agent"]
+        AG2["Agente_PRP_Orquestrador.md\nPRP Orchestrator"]
+        AG3["Agente_Task_Direto.md\nDirect Task Agent"]
+        AG4["Agente_UserStory_Refiner.md\nUS Refiner"]
+        RULES["GLOBAL_ENGINEERING_RULES.json\n+ PROJECT_STANDARDS.md\n+ AGENTS.md"]
+        WF["Workflows 00-11\nExecutable Runbooks"]
     end
 
     AG1 --> B
@@ -118,16 +118,47 @@ flowchart TD
     RULES --> E
     WF --> E
 
-    %% ── DevOps ─────────────────────────────────────────────────────
-    subgraph DevOps — cli/commands/devops.py
-        GIT[ce git-setup<br/>Git Integration]
-        HOOK_INST[ce install-hooks<br/>Soft/Hard Gate Hooks]
-        CI[ce ci-bootstrap<br/>CI Pipeline Generation]
+    %% DevOps
+    subgraph DevOps["DevOps - cli/commands/devops.py"]
+        GIT["ce git-setup\nGit Integration"]
+        HOOK_INST["ce install-hooks\nSoft/Hard Gate Hooks"]
+        CI["ce ci-bootstrap\nCI Pipeline Generation"]
     end
 
     GIT --> HOOKS
     HOOK_INST --> HOOKS
     CI --> N
 
-    %% ── User Story Fast Path ───────────────────────────────────────
-    US[User Story<br/>ce generate-tasks --from-us] -->|"@Agente_UserStory_Refiner"| D
+    %% User Story Fast Path
+    US["User Story\nce generate-tasks --from-us"] -->|"Agente_UserStory_Refiner"| D
+
+    %% Context Engineering Layer
+    subgraph CtxEng["Context Engineering Layer"]
+        DISCUSS["ce discuss\nContextCapture"]
+        RESEARCH["ResearchEngine\nRESEARCH.md"]
+        VERIFY["ce verify\nVerificationEngine"]
+        CONST["Constitution\nPROJECT_CONSTITUTION.md"]
+        WAVE["WaveExecutor\nParallel Waves"]
+        HEALTH["ce health\nHealthChecker"]
+        SESS["ce session\nSession Manager"]
+    end
+
+    DISCUSS --> C
+    RESEARCH --> C
+    VERIFY --> F
+    WAVE --> D
+    HEALTH --> G
+    CONST --> ENG
+    SESS --> I
+
+    %% Git Workflow
+    subgraph GitWF["Git Workflow - core/git_service.py"]
+        COMMIT["ce commit task\nAtomic Commits"]
+        CMAP["ce commit map\nTraceability"]
+        BRANCH["Phase Branching\ncreate/merge"]
+    end
+
+    COMMIT --> F
+    CMAP --> G
+    BRANCH --> HOOKS
+    E --> COMMIT

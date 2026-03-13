@@ -7,6 +7,8 @@ import logging
 import shutil
 import subprocess
 
+import yaml
+
 # Ensure core modules are importable when running CLI directly
 import sys
 from pathlib import Path
@@ -496,4 +498,59 @@ __all__ = [
     "echo_step",
     "get_project_language",
     "validate_command_prerequisites",
+    "load_active_skills",
 ]
+
+
+def load_active_skills(ctx: click.Context | None = None) -> str:
+    """Load content of active skills from .agent/skills.yaml."""
+    if not ctx:
+        try:
+            ctx = click.get_current_context()
+        except RuntimeError:
+            return ""
+
+    current_ctx = ctx
+    aliases = None
+    while current_ctx:
+        if current_ctx.obj and isinstance(current_ctx.obj, dict) and "skills" in current_ctx.obj:
+            aliases = current_ctx.obj["skills"]
+            break
+        current_ctx = current_ctx.parent
+
+    if not aliases:
+        return ""
+
+    project_root_info = load_project_config()
+    project_root = project_root_info[0]
+
+    if not project_root:
+        return ""
+
+    skills_yaml_path = project_root / ".agent" / "skills.yaml"
+    if not skills_yaml_path.exists():
+        return ""
+
+    try:
+        registry = yaml.safe_load(skills_yaml_path.read_text(encoding="utf-8")) or {}
+        skills_map = registry.get("skills", {})
+
+        combined_content = []
+        for alias in aliases:
+            if alias not in skills_map:
+                continue
+
+            skill_def = skills_map[alias]
+            skill_path = project_root / skill_def["path"]
+
+            if skill_path.exists():
+                content = skill_path.read_text(encoding="utf-8")
+                combined_content.append(f"\n--- Skill: {alias} ---\n{content}\n")
+            else:
+                pass
+
+        return "\n".join(combined_content)
+
+    except Exception:
+        return ""
+

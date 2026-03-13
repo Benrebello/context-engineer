@@ -1528,7 +1528,203 @@ ce gpr prd/prd_structured.json
 
 ---
 
-### Per-Project Configuration
+### Context Engineering Commands
+
+#### `ce discuss` - Capture Phase Context / Capturar Contexto da Fase
+
+Identifies gray areas in a phase and captures user decisions before technical planning (`cli/commands/discuss.py`, `core/context_capture.py`). / Identifica áreas cinzentas e captura decisões do usuário antes do planejamento.
+
+**Syntax / Sintaxe:**
+```bash
+ce discuss PHASE_ID [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `PHASE_ID` | Phase identifier. / Identificador da fase. | required |
+| `--project-dir PATH` | Project root directory. / Diretório raiz. | `.` |
+| `--batch` | Show all questions at once. / Mostrar todas as perguntas de uma vez. | `false` |
+
+**Examples / Exemplos:**
+```bash
+# Interactive one-by-one questioning
+ce discuss 01
+
+# Batch mode - all questions at once
+ce discuss 01 --batch
+```
+
+**Generated File:** `{phase_id}-CONTEXT.md` in `.planning/`
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/discuss.py`
+- Service: `core/context_capture.py`
+
+---
+
+#### `ce verify` - Run Phase Verification / Verificar Fase
+
+Generates verification checklist and UAT for a specific phase (`cli/commands/verify.py`, `core/verification.py`). / Gera checklist de verificação e UAT para uma fase.
+
+**Syntax / Sintaxe:**
+```bash
+ce verify PHASE_ID [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `PHASE_ID` | Phase identifier. / Identificador da fase. | required |
+| `--project-dir PATH` | Project root directory. / Diretório raiz. | `.` |
+
+**Examples / Exemplos:**
+```bash
+# Generate UAT for phase 01
+ce verify 01
+```
+
+**Generated File:** `{phase_id}-UAT.md` in `.planning/`
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/verify.py`
+- Service: `core/verification.py`
+
+---
+
+#### `ce health` - Project Health Check / Diagnóstico de Saúde
+
+Diagnoses project integrity and optionally auto-repairs issues (`cli/commands/health_cmd.py`, `core/health.py`). / Diagnostica integridade do projeto e opcionalmente repara automaticamente.
+
+**Syntax / Sintaxe:**
+```bash
+ce health [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `--project-dir PATH` | Project root directory. / Diretório raiz. | `.` |
+| `--repair` | Auto-fix fixable issues. / Corrigir problemas automaticamente. | `false` |
+| `--json-output` | Output as JSON. / Saída em JSON. | `false` |
+
+**Examples / Exemplos:**
+```bash
+# Check project health
+ce health
+
+# Auto-repair issues
+ce health --repair
+
+# JSON output for automation
+ce health --json-output
+```
+
+**Checks Performed:**
+- Required directories exist (IDE-rules, .ide-rules)
+- STATE.json validity and completeness
+- PROJECT_CONSTITUTION.md presence
+- Git repository initialization
+- Planning directory structure
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/health_cmd.py`
+- Service: `core/health.py`
+
+---
+
+#### `ce session` - Session Management / Gerenciamento de Sessão
+
+Pause, resume, and check status of work sessions (`cli/commands/session.py`). / Pausar, retomar e verificar status de sessões de trabalho.
+
+**Syntax / Sintaxe:**
+```bash
+ce session pause [OPTIONS]
+ce session resume [OPTIONS]
+ce session status [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `--project-dir PATH` | Project root directory. / Diretório raiz. | `.` |
+| `--note TEXT` | Note about current state (pause only). / Nota sobre o estado atual. | `""` |
+
+**Examples / Exemplos:**
+```bash
+# Pause work with a note
+ce session pause --note "Working on API endpoints"
+
+# Resume later
+ce session resume
+
+# Check session status
+ce session status
+```
+
+**Persisted File:** `.ide-rules/SESSION.json`
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/session.py`
+
+---
+
+#### `ce commit task` - Atomic Task Commit / Commit Atômico por Tarefa
+
+Performs an atomic Git commit scoped to a specific task (`cli/commands/commit.py`, `core/git_service.py`). / Executa commit Git atômico vinculado a uma tarefa.
+
+**Syntax / Sintaxe:**
+```bash
+ce commit task TASK_ID MESSAGE [OPTIONS]
+```
+
+| Option / Opção | Description / Descrição | Default |
+| --- | --- | --- |
+| `TASK_ID` | Task identifier (e.g., FR-001). / Identificador da tarefa. | required |
+| `MESSAGE` | Commit message. / Mensagem do commit. | required |
+| `--project-dir PATH` | Project root directory. / Diretório raiz. | `.` |
+| `--file TEXT` | Specific files to commit (repeatable). / Arquivos específicos. | all staged |
+
+**Examples / Exemplos:**
+```bash
+# Commit all staged changes for a task
+ce commit task FR-001 "Add login endpoint"
+
+# Commit specific files
+ce commit task FR-002 "Add user model" --file src/models/user.py --file tests/test_user.py
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/commit.py`
+- Service: `core/git_service.py` (`commit_task`)
+
+---
+
+#### `ce state` - Execution State / Estado de Execução
+
+Manage project execution state (`cli/commands/state.py`, `core/progress.py`). / Gerenciar estado de execução do projeto.
+
+**Syntax / Sintaxe:**
+```bash
+ce state status [OPTIONS]
+ce state update TASK_ID NAME STATUS [OPTIONS]
+ce state milestone NAME [OPTIONS]
+```
+
+**Examples / Exemplos:**
+```bash
+# View execution state
+ce state status --json
+
+# Update task status
+ce state update FR-001 "Login endpoint" completed
+
+# Set milestone
+ce state milestone "v1.0-alpha"
+```
+
+**Code References / Referências de Código:**
+- Implementation: `cli/commands/state.py`
+- Service: `core/progress.py`
+
+---
+
 
 Each Context Engineer project has its own configuration and SQLite database.
 
@@ -1577,23 +1773,35 @@ ce init my-api --stack python-fastapi --enable-ai true
 # 2. Enter directory
 cd my-api
 
-# 3. Generate PRD (interactive mode)
+# 3. Check project health
+ce health
+
+# 4. Generate PRD (interactive mode)
 ce generate-prd --interactive
 
-# 4. Generate PRPs
+# 5. Discuss phase context
+ce discuss 01
+
+# 6. Generate PRPs
 ce generate-prps prd/product.md
 
-# 5. Validate everything
+# 7. Validate everything
 ce validate --check-traceability --check-contracts
 
-# 6. Generate tasks
+# 8. Generate tasks
 ce generate-tasks
 
-# 7. View status
+# 9. Execute and commit atomically
+ce commit task FR-001 "Add user model"
+
+# 10. Verify deliverables
+ce verify 01
+
+# 11. View status
 ce status --detailed
 
-# 8. View metrics
-ce metrics
+# 12. Pause work
+ce session pause --note "Phase 01 done"
 ```
 
 ---
@@ -2106,26 +2314,38 @@ ce init my-api --stack python-fastapi --enable-ai true
 # 2. Entrar no diretório
 cd my-api
 
-# 3. Gerar PRD (modo interativo)
+# 3. Verificar saúde do projeto
+ce health
+
+# 4. Gerar PRD (modo interativo)
 ce generate-prd --interactive
 
-# 4. Gerar PRPs
+# 5. Discutir contexto da fase
+ce discuss 01
+
+# 6. Gerar PRPs
 ce generate-prps prd/product.md
 
-# 5. Validar tudo
+# 7. Validar tudo
 ce validate --check-traceability --check-contracts
 
-# 6. Gerar tasks
+# 8. Gerar tasks
 ce generate-tasks
 
-# 7. Ver status
+# 9. Executar e commit atômico
+ce commit task FR-001 "Add user model"
+
+# 10. Verificar deliverables
+ce verify 01
+
+# 11. Ver status
 ce status --detailed
 
-# 8. Ver métricas
-ce metrics
+# 12. Pausar trabalho
+ce session pause --note "Fase 01 concluída"
 ```
 
 ---
 
-**Version / Versão:** 1.1.0  
-**Last Updated / Última Atualização:** 2026-01-07
+**Version / Versão:** 1.2.0  
+**Last Updated / Última Atualização:** 2026-03-13

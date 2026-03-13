@@ -15,6 +15,14 @@
 - Clean Architecture, SOLID, LGPD compliance, automated validation and estimation are enforced by default.
 - Works with AI copilots (semantic embeddings via `--ai`) or in lightweight mode (`--no-ai`), with governance handled by Soft-Gate Git hooks.
 
+#### Architecture
+
+![Context Engineer - Component Architecture](docs/assets/visual_architecture.svg)
+
+#### Pipeline Flow
+
+![Context Engineer - Functional Flow](docs/assets/context_engineer_flow.png)
+
 ### Installation & Environment
 | Scenario | Command(s) |
 |----------|------------|
@@ -29,6 +37,9 @@
 | Conversational assistant | `ce assist --format text\|html --open` | Reads project state, suggests patterns/cache entries and can execute `ce init`, `ce generate-prd`, `ce generate-prps`, `ce generate-tasks`. |
 | Review / inspection | `ce status`, `ce checklist` | Read-only dashboards for governance ceremonies. |
 | Guided / automation | `ce wizard`, `ce autopilot`, `ce ci-bootstrap` | Wizard confirms each phase; Autopilot resumes unattended pipelines; CI bootstrap wires `ce validate` + `ce report` into GitHub Actions. |
+| Context & planning | `ce discuss <phase>`, `ce verify <phase>` | Capture decisions before planning; run verification/UAT after execution. |
+| Project management | `ce state status`, `ce health`, `ce session pause/resume` | Track state, diagnose project integrity, manage work sessions. |
+| Git workflow | `ce commit task <id> <msg>`, `ce commit map` | Atomic commits per task and commit-to-task traceability. |
 
 ### Getting Started
 1. `ce init my-project --stack python-fastapi` or `ce init --interactive`.
@@ -66,6 +77,16 @@
 - Stack Plugins: Add new stacks via YAML only
 - Multi-stack support (Python/FastAPI, Go/Gin, Node/React, Vue3)
 - Automated tests (≥ 80% coverage requirement)
+- **Project Constitution** — Centralized principles and guidelines (`ce constitution init`)
+- **Execution State** — Real-time progress tracking with `STATE.json` / `STATE.md`
+- **Atomic Git Commits** — One commit per task for clean, traceable history
+- **Wave-Based Execution** — Dependency-aware parallel task execution in waves
+- **Research Phase** — Automated `RESEARCH.md` generation before planning
+- **Context Capture** — Interactive discuss phase to clarify gray areas (`ce discuss`)
+- **Verification & UAT** — Automated deliverable extraction and UAT checklists (`ce verify`)
+- **Session Management** — Pause/resume work sessions preserving context
+- **Health Checks** — Project integrity diagnosis and auto-repair (`ce health --repair`)
+- **Git Branching Strategies** — Automatic phase/milestone branch management
 
 ### Contributing
 
@@ -88,6 +109,14 @@ This project is licensed under the [MIT License](LICENSE).
 - Clean Architecture, SOLID, conformidade LGPD, validação e estimativa automatizadas são aplicadas por padrão.
 - Funciona com copilots de IA (embeddings semânticos via `--ai`) ou em modo leve (`--no-ai`), com governança gerenciada por Git hooks Soft-Gate.
 
+#### Arquitetura
+
+![Context Engineer - Visão de Componentes](docs/assets/visual_architecture.svg)
+
+#### Diagrama de Fluxo
+
+![Context Engineer - Fluxo Funcional](docs/assets/context_engineer_flow.png)
+
 ### Instalação e Ambiente
 | Cenário | Comando(s) |
 |---------|------------|
@@ -102,6 +131,9 @@ This project is licensed under the [MIT License](LICENSE).
 | Assistente conversacional | `ce assist --format text\|html --open` | Lê o estado do projeto, sugere padrões/entradas de cache e pode executar `ce init`, `ce generate-prd`, `ce generate-prps`, `ce generate-tasks`. |
 | Revisão / inspeção | `ce status`, `ce checklist` | Dashboards somente leitura para cerimônias de governança. |
 | Guiado / automação | `ce wizard`, `ce autopilot`, `ce ci-bootstrap` | Wizard confirma cada fase; Autopilot retoma pipelines sem supervisão; CI bootstrap integra `ce validate` + `ce report` no GitHub Actions. |
+| Contexto e planejamento | `ce discuss <fase>`, `ce verify <fase>` | Captura decisões antes do planejamento; executa verificação/UAT após execução. |
+| Gerenciamento de projeto | `ce state status`, `ce health`, `ce session pause/resume` | Rastreamento de estado, diagnóstico de integridade, gerenciamento de sessões. |
+| Fluxo Git | `ce commit task <id> <msg>`, `ce commit map` | Commits atômicos por tarefa e rastreabilidade commit-tarefa. |
 
 ### Primeiros Passos
 1. `ce init meu-projeto --stack python-fastapi` ou `ce init --interactive`.
@@ -139,6 +171,16 @@ This project is licensed under the [MIT License](LICENSE).
 - Stack Plugins: Adicione novas stacks via YAML apenas
 - Suporte multi-stack (Python/FastAPI, Go/Gin, Node/React, Vue3)
 - Testes automatizados (requisito de cobertura ≥ 80%)
+- **Project Constitution** — Princípios centralizados e diretrizes de desenvolvimento (`ce constitution init`)
+- **Estado de Execução** — Rastreamento de progresso em tempo real com `STATE.json` / `STATE.md`
+- **Commits Atômicos** — Um commit por tarefa para histórico limpo e rastreável
+- **Execução em Waves** — Execução paralela de tarefas baseada em dependências
+- **Fase de Pesquisa** — Geração automática de `RESEARCH.md` antes do planejamento
+- **Captura de Contexto** — Fase de discussão interativa para clarificar áreas cinzentas (`ce discuss`)
+- **Verificação & UAT** — Extração automática de deliverables e checklists UAT (`ce verify`)
+- **Gerenciamento de Sessão** — Pausar/retomar sessões de trabalho preservando contexto
+- **Health Checks** — Diagnóstico de integridade do projeto e reparo automático (`ce health --repair`)
+- **Estratégias de Branching Git** — Gerenciamento automático de branches por fase/milestone
 
 ### Contribuindo
 

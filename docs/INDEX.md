@@ -24,6 +24,14 @@
 7. **[CURSOR_EXAMPLES.md](CURSOR_EXAMPLES.md)** - Exemplos práticos por domínio (E-commerce, Hospitalar, etc.)
 8. **[MULTI_IDE_USAGE_GUIDE.md](MULTI_IDE_USAGE_GUIDE.md)** - Uso em outras IDEs e sem IA *(bilingual navigation)*
 
+#### Visão Geral da Arquitetura
+
+![Component Architecture](assets/visual_architecture.svg)
+
+#### Fluxo Funcional
+
+![Functional Flow](assets/context_engineer_flow.png)
+
 ---
 
 ## Matriz Documento × Propósito / Document × Purpose Matrix
@@ -110,6 +118,21 @@
 | `ce ide sync` | `--project-dir` | N/A (copia arquivos) | `cli/commands/ide.py` |
 | `ce alias` | `<subcommand>` | N/A (gerencia aliases) | `cli/commands/alias.py` |
 
+### Comandos de Context Engineering
+
+| Comando | Flags Principais | Serviço Core | Arquivo CLI |
+|---------|------------------|--------------|-------------|
+| `ce discuss` | `<phase_id>`, `--project-dir`, `--batch` | `core/context_capture.py` | `cli/commands/discuss.py` |
+| `ce verify` | `<phase_id>`, `--project-dir` | `core/verification.py` | `cli/commands/verify.py` |
+| `ce health` | `--project-dir`, `--repair`, `--json-output` | `core/health.py` | `cli/commands/health_cmd.py` |
+| `ce session pause` | `--project-dir`, `--note` | `core/progress.py` | `cli/commands/session.py` |
+| `ce session resume` | `--project-dir` | `core/progress.py` | `cli/commands/session.py` |
+| `ce session status` | `--project-dir` | `core/progress.py` | `cli/commands/session.py` |
+| `ce state status` | `--project-dir`, `--json` | `core/progress.py` | `cli/commands/state.py` |
+| `ce state update` | `<task_id>`, `<name>`, `<status>` | `core/progress.py` | `cli/commands/state.py` |
+| `ce commit task` | `<task_id>`, `<message>`, `--file` | `core/git_service.py` | `cli/commands/commit.py` |
+| `ce commit map` | `--project-dir`, `--output`, `--branch` | `core/git_service.py` | `cli/commands/commit.py` |
+
 > **Nota importante:** Todos os comandos que aceitam `--ai/--no-ai` e `--embedding-model` utilizam o `AIGovernanceService` (`core/ai_governance_service.py`) para resolver preferências de IA e modelos de embedding.
 
 ---
@@ -134,7 +157,23 @@ context-engineer/
 │ └── ... (F2-F8)
 │
 ├── core/ # Framework reutilizável (Python)
+│   ├── engine.py            # Orquestrador principal
+│   ├── progress.py          # Estado de execução (STATE.json)
+│   ├── health.py            # Health checks e auto-repair
+│   ├── wave_executor.py     # Execução paralela em waves
+│   ├── research.py          # Geração de RESEARCH.md
+│   ├── context_capture.py   # Captura de contexto/decisões
+│   ├── verification.py      # Verificação e UAT
+│   ├── constitution.py      # Constituição do projeto
+│   └── git_service.py       # Git + branching strategies
 ├── cli/ # CLI tool (opcional)
+│   └── commands/
+│       ├── discuss.py       # ce discuss
+│       ├── verify.py        # ce verify
+│       ├── health_cmd.py    # ce health
+│       ├── session.py       # ce session
+│       ├── state.py         # ce state
+│       └── commit.py        # ce commit
 ├── templates/ # Templates parametrizáveis
 ├── patterns/ # Biblioteca de padrões
 ├── stacks/ # Plugins de stack

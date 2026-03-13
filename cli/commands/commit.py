@@ -9,7 +9,12 @@ import click
 from cli.shared import build_commit_mapping
 
 
-@click.command(help="Generate commits.json with Task → commits/PR mapping.")
+@click.group(help="Git commit management for Context Engineer.")
+def commit():
+    """Git commit management."""
+    pass
+
+@commit.command(name="map", help="Generate commits.json with Task → commits/PR mapping.")
 @click.option(
     "--project-dir",
     default=".",
@@ -61,5 +66,22 @@ def generate_commit_map(project_dir, output, git_range, include_uncommitted):
         click.echo(f"Error while generating commit map: {exc}", err=True)
         raise click.Abort()
 
+@commit.command(name="task", help="Perform an atomic commit for a specific task.")
+@click.argument("task_id")
+@click.argument("message")
+@click.option("--project-dir", default=".", help="Project root directory.")
+@click.option("--file", "files", multiple=True, help="Specific files to commit.")
+def commit_task(task_id, message, project_dir, files):
+    """Surgically commit changes related to a task."""
+    from core.git_service import GitService
+    
+    try:
+        project_path = Path(project_dir).resolve()
+        service = GitService(project_path)
+        commit_hash = service.commit_task(task_id, message, list(files) if files else None)
+        click.secho(f"✅ [OK] Atomic commit created: {commit_hash[:7]}", fg="green")
+    except Exception as e:
+        click.secho(f"❌ [ERRO] Failed to commit: {e}", fg="red")
+        raise click.Abort()
 
-__all__ = ["generate_commit_map"]
+__all__ = ["commit", "generate_commit_map"]

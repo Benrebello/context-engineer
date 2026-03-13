@@ -27,6 +27,14 @@ Then [expected result]
 
 ---
 
+## XML Task Definition
+
+```xml
+{{ xml_representation }}
+```
+
+---
+
 ## Objective
 
 Implement [clear, specific objective for the User Story] following Clean Architecture and ensuring all acceptance criteria pass.

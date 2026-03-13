@@ -1,250 +1,80 @@
 """
-Progress tracking utilities for long-running operations.
+Execution State Module
+Tracks the real-time progress of project execution
 """
 
-from __future__ import annotations
+import json
+import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+from datetime import datetime
 
-from contextlib import contextmanager
-from typing import Any
+class ExecutionState:
+    """Manages the dynamic state of project execution"""
 
-try:
-    from rich.progress import (
-        BarColumn,
-        MofNCompleteColumn,
-        Progress,
-        SpinnerColumn,
-        TaskID,
-        TextColumn,
-        TimeElapsedColumn,
-        TimeRemainingColumn,
-    )
+    def __init__(self, project_dir: Path):
+        self.project_dir = Path(project_dir)
+        self.state_file = self.project_dir / ".ide-rules" / "STATE.json"
+        self.markdown_state = self.project_dir / "STATE.md"
+        self.data: Dict[str, Any] = {
+            "project_name": self.project_dir.name,
+            "status": "initialized",
+            "current_milestone": "setup",
+            "progress_percentage": 0,
+            "tasks": {},
+            "last_updated": datetime.now().isoformat()
+        }
 
-    RICH_AVAILABLE = True
-except ImportError:
-    RICH_AVAILABLE = False
-    Progress = None  # type: ignore
-    TaskID = Any  # type: ignore
+    def load(self):
+        """Load state from JSON file"""
+        if self.state_file.exists():
+            with open(self.state_file, "r", encoding="utf-8") as f:
+                self.data = json.load(f)
 
+    def _save(self):
+        """Save state to JSON and MD"""
+        self.state_file.parent.mkdir(parents=True, exist_ok=True)
+        self.data["last_updated"] = datetime.now().isoformat()
+        
+        with open(self.state_file, "w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=2)
+        
+        self._sync_to_markdown()
 
-class ProgressTracker:
-    """Wrapper for progress tracking with fallback to simple output."""
+    def _sync_to_markdown(self):
+        """Generate a human-readable STATE.md"""
+        content = f"# Project State: {self.data.get('project_name')}\n\n"
+        content += f"**Status:** {self.data.get('status')} | **Progress:** {self.data.get('progress_percentage')}%\n"
+        content += f"**Current Milestone:** {self.data.get('current_milestone')}\n\n"
+        content += "## Task Progress\n\n"
+        
+        for task_id, task_data in self.data.get("tasks", {}).items():
+            status = task_data.get("status", "pending")
+            icon = "✅" if status == "completed" else "⏳" if status == "in_progress" else "❌" if status == "failed" else "⬜"
+            content += f"- {icon} **{task_id}**: {task_data.get('name')} ({status})\n"
+        
+        content += f"\n*Last updated: {self.data.get('last_updated')}*"
+        self.markdown_state.write_text(content, encoding="utf-8")
 
-    def __init__(self, enabled: bool = True):
-        """
-        Initialize progress tracker.
+    def update_task(self, task_id: str, name: str, status: str):
+        """Update status of a specific task and recalculate progress"""
+        self.load()
+        self.data["tasks"][task_id] = {
+            "name": name,
+            "status": status,
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        # Calculate progress
+        total = len(self.data["tasks"])
+        completed = sum(1 for t in self.data["tasks"].values() if t["status"] == "completed")
+        if total > 0:
+            self.data["progress_percentage"] = int((completed / total) * 100)
+        
+        self._save()
 
-        Args:
-            enabled: Whether to show progress (can be disabled for testing)
-        """
-        self.enabled = enabled and RICH_AVAILABLE
-        self._progress: Progress | None = None
-        self._tasks: dict[str, TaskID] = {}
-
-    def __enter__(self) -> ProgressTracker:
-        """Enter context manager."""
-        if self.enabled:
-            self._progress = Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(),
-                MofNCompleteColumn(),
-                TimeElapsedColumn(),
-                TimeRemainingColumn(),
-            )
-            self._progress.__enter__()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager."""
-        if self._progress:
-            self._progress.__exit__(exc_type, exc_val, exc_tb)
-
-    def add_task(
-        self,
-        description: str,
-        total: int | None = None,
-        task_id: str | None = None,
-    ) -> str:
-        """
-        Add a new task to track.
-
-        Args:
-            description: Task description
-            total: Total number of steps (None for indeterminate)
-            task_id: Optional task identifier
-
-        Returns:
-            Task ID for updating progress
-        """
-        if not self.enabled or not self._progress:
-            # Fallback: just print the description
-            print(f"[*] {description}...")
-            return task_id or description
-
-        task = self._progress.add_task(description, total=total)
-        if task_id:
-            self._tasks[task_id] = task
-        return task_id or str(task)
-
-    def update(
-        self,
-        task_id: str,
-        advance: int = 1,
-        description: str | None = None,
-        completed: int | None = None,
-    ) -> None:
-        """
-        Update task progress.
-
-        Args:
-            task_id: Task identifier
-            advance: Number of steps to advance
-            description: Optional new description
-            completed: Optional absolute completed count
-        """
-        if not self.enabled or not self._progress:
-            if description:
-                print(f"  [OK] {description}")
-            return
-
-        task = self._tasks.get(task_id)
-        if task is not None:
-            kwargs = {}
-            if advance:
-                kwargs["advance"] = advance
-            if description:
-                kwargs["description"] = description
-            if completed is not None:
-                kwargs["completed"] = completed
-            self._progress.update(task, **kwargs)
-
-    def complete(self, task_id: str, description: str | None = None) -> None:
-        """
-        Mark task as complete.
-
-        Args:
-            task_id: Task identifier
-            description: Optional completion message
-        """
-        if not self.enabled or not self._progress:
-            msg = description or "Complete"
-            print(f"  [OK] {msg}")
-            return
-
-        task = self._tasks.get(task_id)
-        if task is not None:
-            if description:
-                self._progress.update(task, description=description)
-            # Mark as 100% complete
-            task_obj = self._progress.tasks[task]
-            if task_obj.total:
-                self._progress.update(task, completed=task_obj.total)
-
-
-@contextmanager
-def progress_context(description: str, total: int | None = None, enabled: bool = True):
-    """
-    Context manager for simple progress tracking.
-
-    Args:
-        description: Task description
-        total: Total steps
-        enabled: Whether progress is enabled
-
-    Example:
-        with progress_context("Processing files", total=10) as progress:
-            for i in range(10):
-                # Do work
-                progress.update(advance=1)
-    """
-    tracker = ProgressTracker(enabled=enabled)
-    with tracker:
-        tracker.add_task(description, total=total, task_id="main")
-        yield tracker
-        tracker.complete("main")
-
-
-class SimpleSpinner:
-    """Simple spinner for operations without known duration."""
-
-    def __init__(self, description: str, enabled: bool = True):
-        """
-        Initialize spinner.
-
-        Args:
-            description: Operation description
-            enabled: Whether to show spinner
-        """
-        self.description = description
-        self.enabled = enabled and RICH_AVAILABLE
-        self._progress: Progress | None = None
-        self._task: TaskID | None = None
-
-    def __enter__(self) -> SimpleSpinner:
-        """Start spinner."""
-        if self.enabled:
-            self._progress = Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                transient=True,
-            )
-            self._progress.__enter__()
-            self._task = self._progress.add_task(self.description)
-        else:
-            print(f"[*] {self.description}...")
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Stop spinner."""
-        if self._progress:
-            self._progress.__exit__(exc_type, exc_val, exc_tb)
-        if not exc_type:
-            print(f"  [OK] {self.description} - Done")
-
-    def update(self, description: str) -> None:
-        """
-        Update spinner description.
-
-        Args:
-            description: New description
-        """
-        self.description = description
-        if self._progress and self._task is not None:
-            self._progress.update(self._task, description=description)
-
-
-def create_progress_bar(
-    description: str,
-    total: int,
-    enabled: bool = True,
-) -> ProgressTracker:
-    """
-    Create a progress bar for tracking operations.
-
-    Args:
-        description: Operation description
-        total: Total number of steps
-        enabled: Whether to show progress
-
-    Returns:
-        ProgressTracker instance
-
-    Example:
-        progress = create_progress_bar("Generating PRPs", total=10)
-        with progress:
-            task_id = progress.add_task("Processing", total=10)
-            for i in range(10):
-                # Do work
-                progress.update(task_id, advance=1)
-    """
-    tracker = ProgressTracker(enabled=enabled)
-    return tracker
-
-
-__all__ = [
-    "ProgressTracker",
-    "progress_context",
-    "SimpleSpinner",
-    "create_progress_bar",
-    "RICH_AVAILABLE",
-]
+    def set_milestone(self, milestone: str):
+        """Set the current active milestone"""
+        self.load()
+        self.data["current_milestone"] = milestone
+        self._save()

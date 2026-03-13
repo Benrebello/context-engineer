@@ -9,8 +9,9 @@ import click
 from cli.commands.ai_governance import ai_governance
 from cli.commands.alias import alias
 from cli.commands.autopilot import autopilot
-from cli.commands.commit import generate_commit_map
+from cli.commands.commit import commit
 from cli.commands.devops import ci_bootstrap, git_setup, install_hooks, mock_server
+from cli.commands.discuss import discuss
 from cli.commands.doctor import doctor
 from cli.commands.explore import explore
 from cli.commands.generation import (
@@ -23,13 +24,17 @@ from cli.commands.generation import (
     init,
     validate,
 )
+from cli.commands.health_cmd import health
 from cli.commands.ide import ide
 from cli.commands.marketplace import marketplace
 from cli.commands.patterns import patterns
 from cli.commands.provider import provider
 from cli.commands.quickstart import quickstart
 from cli.commands.reporting import ai_status, metrics_summary, report
+from cli.commands.session import session
+from cli.commands.state import state
 from cli.commands.status import assist, checklist, status, wizard
+from cli.commands.verify import verify_phase
 from cli.shared import (
     configure_logging as shared_configure_logging,
 )
@@ -77,13 +82,28 @@ subprocess = subprocess
     type=click.Choice(["bash", "zsh", "fish", "powershell"], case_sensitive=False),
     help="Install shell completion for the specified shell.",
 )
-def cli(verbose: bool, quiet: bool, log_level: str | None, install_completion: str | None) -> None:
+@click.option(
+    "--skill",
+    multiple=True,
+    help="Activate a specific agent skill (e.g. python, testing). Can be used multiple times.",
+)
+@click.pass_context
+def cli(ctx: click.Context, verbose: bool, quiet: bool, log_level: str | None, install_completion: str | None, skill: tuple[str, ...]) -> None:
     """Context Engineer CLI - Framework de desenvolvimento assistido por IA."""
+    ctx.ensure_object(dict)
+    ctx.obj["skills"] = skill
+
     if install_completion:
         _install_shell_completion(install_completion)
         return
 
     configure_logging(verbose=verbose, quiet=quiet, level=log_level)
+
+    # Log activated skills for visibility
+    if skill:
+        click.secho(f"Active Skills: {', '.join(skill)}", fg="cyan", dim=True)
+
+
     # Os comandos são registrados dinamicamente em _register_commands().
 
 
@@ -168,11 +188,12 @@ def _register_commands() -> None:
     cli.add_command(generate_prd)
     cli.add_command(generate_prps)
     cli.add_command(generate_tasks)
+    cli.add_command(state)
     cli.add_command(validate)
     cli.add_command(check_dependencies)
     cli.add_command(estimate_effort)
     cli.add_command(estimate_batch)
-    cli.add_command(generate_commit_map)
+    cli.add_command(commit)
 
     # Assistentes e automações
     cli.add_command(quickstart)
@@ -204,6 +225,12 @@ def _register_commands() -> None:
 
     # Configuração de provedores LLM
     cli.add_command(provider)
+
+    # Round 2: Novos comandos de otimização
+    cli.add_command(discuss)
+    cli.add_command(verify_phase)
+    cli.add_command(health)
+    cli.add_command(session)
 
 
 _register_commands()

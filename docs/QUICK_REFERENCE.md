@@ -15,6 +15,9 @@
 | Review / inspection | `ce status`, `ce checklist`, `ce doctor [--ai-profile corporate]`, `ce ai-governance status` | Read-only dashboards plus AI profile enforcement, ROI snapshots and Git hook diagnostics for governance checkpoints and daily stand-ups. |
 | Guided execution | `ce wizard` | Asks confirmation before each phase, ideal for workshops. |
 | Hands-off automation | `ce autopilot [--idea-file|--prd-file|--prps-dir|--tasks-dir]`, `ce ci-bootstrap` | Runs the entire pipeline unattended or wires GitHub Actions with the same validation hooks. |
+| Context & planning | `ce discuss <phase>`, `ce verify <phase>` | Capture decisions before planning; run verification/UAT after execution. |
+| Project management | `ce state status`, `ce health [--repair]`, `ce session pause/resume` | Track state, diagnose project integrity, manage work sessions. |
+| Git workflow | `ce commit task <id> <msg>`, `ce commit map` | Atomic commits per task and commit-to-task traceability. |
 
 > All tracks honor `--ai / --no-ai` and the embedding configuration enforced by the AI Governance service.
 
@@ -31,6 +34,8 @@
 ### Assets
 - Diagram (Mermaid + PNG): `docs/assets/context_engineer_flow.mmd` / `context_engineer_flow.png`.
 - File structure overview and PRP phase table retained below (Portuguese section) with the same commands mirrored.
+
+![Pipeline Flow](assets/context_engineer_flow.png)
 
 ### Release checklist (PyPI + GitHub Actions)
 1. Run validations: `pytest -q && ruff check .` (plus stack-specific linters).
@@ -54,6 +59,9 @@
 | **Revisão/inspeção** | `ce status`, `ce checklist`, `ce doctor [--ai-profile corporativo]`, `ce ai-governance status` | Dashboards somente leitura com enforcement de perfis de IA, ROI e status dos hooks para rituais de governança e dailies. |
 | **Execução guiada** | `ce wizard` | Pede confirmação em cada fase, ideal para workshops. |
 | **Automação completa** | `ce autopilot [--idea-file|--prd-file|--prps-dir|--tasks-dir]`, `ce ci-bootstrap` | Roda o pipeline inteiro sem intervenção ou configura GitHub Actions com os mesmos validadores. |
+| **Contexto e planejamento** | `ce discuss <fase>`, `ce verify <fase>` | Captura decisões antes do planejamento; executa verificação/UAT após execução. |
+| **Gerenciamento de projeto** | `ce state status`, `ce health [--repair]`, `ce session pause/resume` | Rastreamento de estado, diagnóstico de integridade, gerenciamento de sessões. |
+| **Fluxo Git** | `ce commit task <id> <msg>`, `ce commit map` | Commits atômicos por tarefa e rastreabilidade commit-tarefa. |
 
 > Todos os modos respeitam `--ai / --no-ai` e o modelo configurado pelo serviço de governança.
 
@@ -171,6 +179,8 @@ Context Engineer/
 ---
 
 ## Functional Flow Reference
+
+![Context Engineer Functional Flow](assets/context_engineer_flow.png)
 
 Render the complete Context Engineer functional map (`docs/assets/context_engineer_flow.mmd`) with any Mermaid viewer to visualize how ideas evolve into validated code and how conversational/review/automation tracks interact with governance services.
 

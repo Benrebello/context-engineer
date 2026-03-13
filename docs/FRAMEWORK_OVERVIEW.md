@@ -1,6 +1,6 @@
 # Context Engineer Framework — Complete Technical Overview
 
-> **Version:** 1.0.0 | **Author:** Benjamin Rebello | **License:** MIT | **Python:** >=3.11
+> **Version:** 1.2.0 | **Author:** Benjamin Rebello | **License:** MIT | **Python:** >=3.11
 
 ---
 
@@ -55,6 +55,8 @@ Idea → PRD → PRPs (F0-F11) → User Stories → Tasks → Code
 ```
 
 Each stage produces **validated artifacts** that feed the next:
+
+![Complete Pipeline Flow](assets/context_engineer_flow.png)
 
 ### Stage 1: Idea → PRD (Product Requirements Document)
 
@@ -150,6 +152,13 @@ context-engineer/
 │   ├── userstory_integration.py  # US refinement + task generation
 │   ├── config_service.py    # Project configuration management
 │   ├── logging_service.py   # Structured logging
+│   ├── progress.py          # Execution state tracking (STATE.json)
+│   ├── health.py            # Project health checks & auto-repair
+│   ├── wave_executor.py     # Wave-based parallel task execution
+│   ├── research.py          # Research documentation generator
+│   ├── context_capture.py   # Context & decision capture
+│   ├── verification.py      # Verification & UAT engine
+│   ├── constitution.py      # Project constitution management
 │   ├── i18n.py              # Internationalization (EN-US / PT-BR)
 │   ├── types.py             # TypedDict definitions (PEP 589)
 │   └── py.typed             # PEP 561 type-checking marker
@@ -165,6 +174,12 @@ context-engineer/
 │   │   ├── provider.py      # LLM provider configuration
 │   │   ├── autopilot.py     # Automated pipeline
 │   │   ├── ai_governance.py # Governance commands
+│   │   ├── discuss.py       # Context capture (ce discuss)
+│   │   ├── verify.py        # UAT verification (ce verify)
+│   │   ├── health_cmd.py    # Health checks (ce health)
+│   │   ├── session.py       # Session management (ce session)
+│   │   ├── state.py         # Execution state (ce state)
+│   │   ├── commit.py        # Atomic commits (ce commit)
 │   │   └── ...              # explore, marketplace, patterns, ide, etc.
 │   └── py.typed             # PEP 561 marker
 ├── IDE-rules/               # Context for AI-powered IDEs
@@ -183,6 +198,10 @@ context-engineer/
 ├── tests/                   # Test suite (pytest)
 └── docs/                    # Documentation (bilingual EN/PT-BR)
 ```
+
+#### Visual Architecture
+
+![Component Architecture](assets/visual_architecture.svg)
 
 ### Data Flow
 
@@ -280,6 +299,13 @@ Tracks project health and ROI:
 | **UserStoryRefiner** | `core/userstory_integration.py` | FR → User Story refinement |
 | **TaskGenerator** | `core/userstory_integration.py` | User Story → Task generation |
 | **ReportingService** | `core/reporting_service.py` | Dashboard rendering (HTML/JSON) |
+| **ExecutionState** | `core/progress.py` | Real-time execution state tracking (STATE.json/STATE.md) |
+| **HealthChecker** | `core/health.py` | Project integrity diagnostic & auto-repair |
+| **WaveExecutor** | `core/wave_executor.py` | Dependency-aware parallel task execution in waves |
+| **ResearchEngine** | `core/research.py` | Automated RESEARCH.md generation before planning |
+| **ContextCapture** | `core/context_capture.py` | Capture user decisions on gray areas (CONTEXT.md) |
+| **VerificationEngine** | `core/verification.py` | UAT checklist generation and deliverable extraction |
+| **Constitution** | `core/constitution.py` | Project principles and development guidelines |
 
 ---
 
